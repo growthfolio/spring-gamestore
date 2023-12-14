@@ -1,9 +1,12 @@
 package com.energygames.lojadegames.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +30,10 @@ public class Produto {
 	@NotBlank(message = "O atributo preço é Obrigatorio!")
 	private Double preco;
 
+	@ManyToOne
+    @JsonIgnoreProperties ("produto")
+    private Categoria categoria;
+	
 	public Long getId() {
 		return id;
 	}
@@ -58,5 +65,14 @@ public class Produto {
 	public void setPreco(Double preco) {
 		this.preco = preco;
 	}
+
+	public Categoria getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(Categoria categoria) {
+		this.categoria = categoria;
+	}
+	
 	
 }
