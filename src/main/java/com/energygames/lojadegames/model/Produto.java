@@ -19,7 +19,7 @@ public class Produto {
 	
 	@NotBlank(message = "O atributo nome_produto é Obrigatorio!")
 	@Size(min = 2, max = 50, message = "O atributo nome_produto deve contaer no minimo 01 e no máximo 50 caracteres!!!")
-	private String nome_produto;
+	private String nome;
 	
 	@NotNull(message = "O Atributo Descrição é obrigatório")
 	private String descricao;
@@ -35,12 +35,12 @@ public class Produto {
 		this.id = id;
 	}
 
-	public String getNome_produto() {
-		return nome_produto;
+	public String getNome() {
+		return nome;
 	}
 
-	public void setNome_produto(String nome_produto) {
-		this.nome_produto = nome_produto;
+	public void setNome(String nome_produto) {
+		this.nome = nome_produto;
 	}
 
 	public String getDescricao() {
