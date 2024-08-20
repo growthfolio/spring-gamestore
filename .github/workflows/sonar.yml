@@ -26,4 +26,5 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=FelipeAJdev_energyGames
+            -Dsonar.organization=felipeajdev
             -Dsonar.sources=.
