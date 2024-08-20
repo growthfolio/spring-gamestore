@@ -13,8 +13,7 @@ permissions:
 jobs:
   Analysis:
     runs-on: ubuntu-latest
-    environment: nome-do-seu-ambiente # Substitua pelo nome do ambiente onde os segredos estão configurados
-
+    environment: nome-do-seu-ambiente
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,5 +27,5 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=FelipeAJdev_energyGames
-            -Dsonar.organization=your_organization_key
+            -Dsonar.organization=felipeajdev
             -Dsonar.sources=.
