@@ -1,0 +1,32 @@
+name: SonarQube analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+    environment: nome-do-seu-ambiente # Substitua pelo nome do ambiente onde os segredos estão configurados
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarqube-scan-action@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=FelipeAJdev_energyGames
+            -Dsonar.organization=your_organization_key
+            -Dsonar.sources=.
