@@ -8,8 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  pull-requests: read # allows SonarQube to decorate PRs with analysis results
-
+  pull-requests: read 
 jobs:
   Analysis:
     runs-on: ubuntu-latest
@@ -19,13 +18,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Analyze with SonarQube
-        # You can pin the exact commit or the version.
         uses: SonarSource/sonarqube-scan-action@7295e71c9583053f5bf40e9d4068a0c974603ec8
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on SonarQube, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}   # add the URL of your instance to the secrets of this repo with the name SONAR_HOST_URL (Settings > Secrets > Actions > add new repository secret)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.projectKey=FelipeAJdev_energyGames  # Substitua por sua chave do projeto SonarQube
-            -Dsonar.sources=.  # Define a raiz do projeto como fonte
+            -Dsonar.projectKey=FelipeAJdev_energyGames
+            -Dsonar.sources=.
