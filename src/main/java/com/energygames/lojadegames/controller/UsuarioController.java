@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.generation.blogpessoal.model.UsuarioLogin;
-import com.generation.blogpessoal.model.Usuario;
-import com.generation.blogpessoal.repository.UsuarioRepository;
-import com.generation.blogpessoal.service.UsuarioService;
+import com.energygames.lojadegames.model.Usuario;
+import com.energygames.lojadegames.model.UsuarioLogin;
+import com.energygames.lojadegames.repository.UsuarioRepository;
+import com.energygames.lojadegames.service.UsuarioService;
 
 import jakarta.validation.Valid;
 

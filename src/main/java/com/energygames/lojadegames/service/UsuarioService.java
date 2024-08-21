@@ -11,10 +11,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.generation.blogpessoal.model.UsuarioLogin;
-import com.generation.blogpessoal.model.Usuario;
-import com.generation.blogpessoal.repository.UsuarioRepository;
-import com.generation.blogpessoal.security.JwtService;
+import com.energygames.lojadegames.model.Usuario;
+import com.energygames.lojadegames.model.UsuarioLogin;
+import com.energygames.lojadegames.repository.UsuarioRepository;
+import com.energygames.lojadegames.security.JwtService;
+
+
 
 @Service
 public class UsuarioService {

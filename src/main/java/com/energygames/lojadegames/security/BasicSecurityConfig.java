@@ -65,6 +65,8 @@ public class BasicSecurityConfig {
 	                .requestMatchers("/usuarios/logar").permitAll()
 	                .requestMatchers("/usuarios/cadastrar").permitAll()
 	                .requestMatchers("/error/**").permitAll()
+	                .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll() // Permite acesso sem autenticação ao método GET de /categorias
+					.requestMatchers(HttpMethod.GET, "/categorias/**").permitAll() // Permite acesso sem autenticação ao método GET de /categorias
 	                .requestMatchers(HttpMethod.OPTIONS).permitAll()
 	                .anyRequest().authenticated())
 	        .authenticationProvider(authenticationProvider())
