@@ -1,3 +1,12 @@
+<div align="center">
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)   
+
+</div>
+
 
 # Spring GameStore - Game Store Management API
 
