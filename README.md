@@ -1,3 +1,4 @@
+
 <div align="center">
 
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
@@ -6,7 +7,6 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)   
 
 </div>
-
 
 # Spring GameStore - Game Store Management API
 
@@ -33,17 +33,17 @@
 To run the project locally:
 
 1. Clone the repository:
-   \`\`\`bash
-   git clone https://github.com/FelipeAJdev/spring-gamestore.git
-   \`\`\`
+   ```bash
+   git clone https://github.com/growthfolio/spring-gamestore.git
+   ```
 2. Navigate to the project directory:
-   \`\`\`bash
+   ```bash
    cd spring-gamestore
-   \`\`\`
+   ```
 3. Run the application:
-   \`\`\`bash
+   ```bash
    ./mvnw spring-boot:run
-   \`\`\`
+   ```
 
 ## 🙏 Acknowledgment
 
