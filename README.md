@@ -1,50 +1,233 @@
+# 🎮 Spring GameStore - API de Gestão de Loja de Jogos
 
-<div align="center">
+## 🎯 Objetivo de Aprendizado
+API RESTful desenvolvida para estudar **gestão de e-commerce** e **arquitetura Spring Boot**. Implementa sistema completo de loja de jogos com **gerenciamento de categorias**, **inventário de produtos** e **autenticação de usuários**, aplicando boas práticas de desenvolvimento backend.
 
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FelipeAJdev_energyGames&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FelipeAJdev_energyGames)   
+## 🛠️ Tecnologias Utilizadas
+- **Framework:** Spring Boot, Spring Data JPA
+- **Segurança:** Spring Security, JWT
+- **Banco de dados:** PostgreSQL
+- **Testes:** JUnit, Mockito
+- **Qualidade:** SonarCloud integration
+- **Documentação:** Swagger/OpenAPI
+- **Deploy:** Docker, Heroku
 
-</div>
+## 🚀 Demonstração
+```json
+// POST /api/games - Criar novo jogo
+{
+  "nome": "The Legend of Zelda: Breath of the Wild",
+  "descricao": "Aventura épica em mundo aberto",
+  "preco": 299.99,
+  "plataforma": "Nintendo Switch",
+  "categoria": {
+    "id": 1,
+    "nome": "Aventura"
+  }
+}
 
-# Spring GameStore - API de Gestão de Loja de Jogos
+// GET /api/games - Listar jogos
+{
+  "content": [
+    {
+      "id": 1,
+      "nome": "The Legend of Zelda: Breath of the Wild",
+      "preco": 299.99,
+      "categoria": "Aventura",
+      "disponivel": true
+    }
+  ]
+}
+```
 
-**Spring GameStore** é uma API completa para a gestão de lojas de jogos, desenvolvida usando Spring Boot. Este projeto foi projetado para gerenciar as principais funcionalidades de uma loja de jogos, como gerenciamento de categorias, inventário de produtos e contas de usuários. A API é RESTful, facilitando a integração com diversas aplicações frontend, garantindo uma experiência de usuário eficiente e fluida.
+## 📁 Estrutura do Projeto
+```
+spring-gamestore/
+├── src/main/java/
+│   ├── controller/               # REST Controllers
+│   │   ├── GameController.java   # Endpoints de jogos
+│   │   ├── CategoryController.java # Endpoints de categorias
+│   │   └── UserController.java   # Endpoints de usuários
+│   ├── model/                    # Entidades JPA
+│   │   ├── Game.java            # Entidade Jogo
+│   │   ├── Category.java        # Entidade Categoria
+│   │   └── User.java            # Entidade Usuário
+│   ├── repository/               # Repositórios JPA
+│   ├── service/                  # Lógica de negócio
+│   ├── security/                 # Configurações de segurança
+│   └── config/                   # Configurações gerais
+├── src/test/                     # Testes automatizados
+└── target/                       # Arquivos compilados
+```
 
-## Funcionalidades
+## 💡 Principais Aprendizados
 
-- **Gerenciamento de Categorias:** Crie, atualize e gerencie categorias para organizar o inventário de jogos.
-- **Gerenciamento de Produtos:** Adicione, edite e exclua jogos da loja com informações detalhadas como preço, descrição e categoria associada.
-- **Gerenciamento de Usuários:** Funcionalidades seguras de registro, autenticação e gerenciamento de perfis de usuários.
-- **Busca e Filtro:** Recursos poderosos de busca e filtragem para encontrar facilmente produtos por categoria e outros atributos.
-- **Tratamento de Erros Robusto:** Gerenciamento abrangente de erros para garantir respostas consistentes e confiáveis da API.
+### 🛍️ E-commerce Architecture
+- **Product management:** CRUD completo de produtos
+- **Category organization:** Hierarquia de categorias
+- **Inventory control:** Controle de estoque
+- **Search functionality:** Busca e filtros avançados
+- **Price management:** Gestão de preços e promoções
 
-## Tecnologias Utilizadas
+### 🔐 Security Implementation
+- **JWT Authentication:** Autenticação baseada em tokens
+- **Role-based access:** Controle de acesso por perfis
+- **Password encryption:** Criptografia de senhas
+- **CORS configuration:** Configuração para frontend
+- **API security:** Proteção de endpoints sensíveis
 
-- **Java & Spring Boot:** Framework backend para construir a API.
-- **Spring Data JPA:** Para integração fluida com o banco de dados.
-- **JUnit & Mockito:** Frameworks de teste para garantir a confiabilidade do código.
-- **PostgreSQL:** Banco de dados para armazenamento persistente de dados.
-- **SonarCloud:** Ferramenta integrada para análise da qualidade do código.
+### 📊 Data Management
+- **JPA relationships:** Relacionamentos OneToMany/ManyToOne
+- **Query optimization:** Consultas otimizadas
+- **Transaction management:** Controle transacional
+- **Data validation:** Validação de dados de entrada
+- **Error handling:** Tratamento consistente de erros
 
-## Instalação e Configuração
+## 🧠 Conceitos Técnicos Estudados
 
-Para executar o projeto localmente:
+### 1. **Entity Relationships**
+```java
+@Entity
+@Table(name = "games")
+public class Game {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false, length = 100)
+    private String nome;
+    
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+    
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Category categoria;
+    
+    // Constructors, getters, setters
+}
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/growthfolio/spring-gamestore.git
-   ```
-2. Navegue até o diretório do projeto:
-   ```bash
-   cd spring-gamestore
-   ```
-3. Execute a aplicação:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+@Entity
+@Table(name = "categories")
+public class Category {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false, unique = true)
+    private String nome;
+    
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
+    private List<Game> games = new ArrayList<>();
+}
+```
 
-## 🙏 Agradecimentos
+### 2. **REST Controller Design**
+```java
+@RestController
+@RequestMapping("/api/games")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+public class GameController {
+    
+    @Autowired
+    private GameService gameService;
+    
+    @GetMapping
+    public ResponseEntity<List<Game>> getAll() {
+        return ResponseEntity.ok(gameService.findAll());
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Game> getById(@PathVariable Long id) {
+        return gameService.findById(id)
+            .map(game -> ResponseEntity.ok(game))
+            .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PostMapping
+    public ResponseEntity<Game> create(@Valid @RequestBody Game game) {
+        Game savedGame = gameService.save(game);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
+    }
+    
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<Game>> getByCategory(@PathVariable String categoria) {
+        List<Game> games = gameService.findByCategoriaNomeContainingIgnoreCase(categoria);
+        return ResponseEntity.ok(games);
+    }
+}
+```
 
-Este projeto foi desenvolvido durante o bootcamp da Generation Brasil.
+### 3. **Service Layer**
+```java
+@Service
+public class GameService {
+    
+    @Autowired
+    private GameRepository gameRepository;
+    
+    @Autowired
+    private CategoryService categoryService;
+    
+    public List<Game> findAll() {
+        return gameRepository.findAll();
+    }
+    
+    public Optional<Game> findById(Long id) {
+        return gameRepository.findById(id);
+    }
+    
+    @Transactional
+    public Game save(Game game) {
+        // Validar categoria
+        if (game.getCategoria() != null && game.getCategoria().getId() != null) {
+            Category categoria = categoryService.findById(game.getCategoria().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+            game.setCategoria(categoria);
+        }
+        
+        return gameRepository.save(game);
+    }
+    
+    public List<Game> findByCategoriaNomeContainingIgnoreCase(String categoria) {
+        return gameRepository.findByCategoriaNomeContainingIgnoreCase(categoria);
+    }
+}
+```
+
+## 🚧 Desafios Enfrentados
+1. **Data modeling:** Modelagem eficiente de relacionamentos
+2. **Performance:** Otimização de queries com JPA
+3. **Security:** Implementação robusta de autenticação
+4. **Error handling:** Tratamento consistente de exceções
+5. **Testing:** Cobertura adequada de testes
+
+## 📚 Recursos Utilizados
+- [Spring Boot Reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
+- [Spring Security](https://docs.spring.io/spring-security/site/docs/current/reference/html5/)
+- [E-commerce Best Practices](https://www.baeldung.com/spring-boot-ecommerce)
+- [Generation Brasil Bootcamp](https://brazil.generation.org/) - Bootcamp onde o projeto foi desenvolvido
+
+## 📈 Próximos Passos
+- [ ] Implementar sistema de carrinho de compras
+- [ ] Adicionar sistema de avaliações
+- [ ] Criar sistema de recomendações
+- [ ] Implementar processamento de pagamentos
+- [ ] Adicionar sistema de cupons de desconto
+- [ ] Criar dashboard administrativo
+
+## 🔗 Projetos Relacionados
+- [React GameStore Front](../react-gamestore-front/) - Frontend da aplicação
+
+---
+
+**Desenvolvido por:** Felipe Macedo  
+**Contato:** contato.dev.macedo@gmail.com  
+**GitHub:** [FelipeMacedo](https://github.com/felipemacedo1)  
+**LinkedIn:** [felipemacedo1](https://linkedin.com/in/felipemacedo1)
+
+> 💡 **Reflexão:** Este projeto consolidou conhecimentos em desenvolvimento de APIs REST para e-commerce. A implementação de relacionamentos JPA e sistema de autenticação proporcionou experiência prática em arquiteturas backend robustas.
