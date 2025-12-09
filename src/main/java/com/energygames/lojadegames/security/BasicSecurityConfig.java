@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,6 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class BasicSecurityConfig {
 
     @Autowired
@@ -83,7 +85,13 @@ public class BasicSecurityConfig {
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/categorias").permitAll() // Permite POST em /categorias sem autenticação
+                        .requestMatchers(HttpMethod.GET, "/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())

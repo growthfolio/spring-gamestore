@@ -1,7 +1,6 @@
 package com.energygames.lojadegames.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.energygames.lojadegames.model.Categoria;
-import com.energygames.lojadegames.repository.CategoriaRepository;
+import com.energygames.lojadegames.dto.request.CategoriaRequestDTO;
+import com.energygames.lojadegames.dto.response.CategoriaResponseDTO;
+import com.energygames.lojadegames.service.CategoriaService;
 
 import jakarta.validation.Valid;
 
@@ -27,53 +26,41 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CategoriaController {
 
-	private final CategoriaRepository categoriaRepository;
+	private final CategoriaService categoriaService;
 
-	public CategoriaController(CategoriaRepository categoriaRepository) {
-        this.categoriaRepository = categoriaRepository;
+	public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 	
 	@GetMapping
-	public ResponseEntity<List<Categoria>> getAll(){
-		return ResponseEntity.ok(categoriaRepository.findAll());
+	public ResponseEntity<List<CategoriaResponseDTO>> getAll(){
+		return ResponseEntity.ok(categoriaService.buscarTodas());
 	}
 	
 	@GetMapping("/{id}")
-	 public ResponseEntity<Categoria> getById(@PathVariable Long id){
-        return categoriaRepository.findById(id)
-            .map(resposta -> ResponseEntity.ok(resposta))
-            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+	public ResponseEntity<CategoriaResponseDTO> getById(@PathVariable Long id){
+		return ResponseEntity.ok(categoriaService.buscarPorId(id));
 	}
 	
-	
-	 @GetMapping("/descricao/{descricao}")
-	  public ResponseEntity<List<Categoria>> getByTitle(@PathVariable String descricao){
-	        return ResponseEntity.ok(categoriaRepository
-	            .findAllByDescricaoContainingIgnoreCase(descricao));
+	@GetMapping("/descricao/{descricao}")
+	public ResponseEntity<List<CategoriaResponseDTO>> getByDescricao(@PathVariable String descricao){
+		return ResponseEntity.ok(categoriaService.buscarPorDescricao(descricao));
 	}
 	 
-	 @PostMapping
-	 public ResponseEntity<Categoria> post(@Valid @RequestBody Categoria categoria){
-		 return ResponseEntity.status(HttpStatus.CREATED)
-				 .body(categoriaRepository.save(categoria));
+	@PostMapping
+	public ResponseEntity<CategoriaResponseDTO> post(@Valid @RequestBody CategoriaRequestDTO dto){
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(categoriaService.criar(dto));
 	}
 	 
-	 @PutMapping
-	 public ResponseEntity<Categoria> put(@Valid @RequestBody Categoria categoria){
-		 return categoriaRepository.findById(categoria.getId())
-				 .map(resposta -> ResponseEntity.status(HttpStatus.CREATED)
-				 .body(categoriaRepository.save(categoria)))
-				 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());	 
-	 }
+	@PutMapping("/{id}")
+	public ResponseEntity<CategoriaResponseDTO> put(@PathVariable Long id, @Valid @RequestBody CategoriaRequestDTO dto){
+		return ResponseEntity.ok(categoriaService.atualizar(id, dto));
+	}
 	 
-	 @ResponseStatus(HttpStatus.NO_CONTENT)
-	 @DeleteMapping("/{id}")
-	 public void delete(@PathVariable Long id) {
-		 Optional<Categoria> categoria = categoriaRepository.findById(id);
-		 
-		 if(categoria.isEmpty())
-			 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		 categoriaRepository.deleteById(id);
-	 }
-	 
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Long id) {
+		categoriaService.deletar(id);
+	}
 }
