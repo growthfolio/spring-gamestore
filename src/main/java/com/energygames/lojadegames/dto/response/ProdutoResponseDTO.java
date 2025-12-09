@@ -21,6 +21,8 @@ public class ProdutoResponseDTO {
 	private List<String> imagens;
 	private Boolean ativo;
 	private CategoriaResumoDTO categoria;
+	private Double mediaAvaliacoes;
+	private Long totalAvaliacoes;
 
 	// Inner class para categoria resumida
 	public static class CategoriaResumoDTO {
@@ -172,5 +174,21 @@ public class ProdutoResponseDTO {
 
 	public void setCategoria(CategoriaResumoDTO categoria) {
 		this.categoria = categoria;
+	}
+
+	public Double getMediaAvaliacoes() {
+		return mediaAvaliacoes;
+	}
+
+	public void setMediaAvaliacoes(Double mediaAvaliacoes) {
+		this.mediaAvaliacoes = mediaAvaliacoes;
+	}
+
+	public Long getTotalAvaliacoes() {
+		return totalAvaliacoes;
+	}
+
+	public void setTotalAvaliacoes(Long totalAvaliacoes) {
+		this.totalAvaliacoes = totalAvaliacoes;
 	}
 }

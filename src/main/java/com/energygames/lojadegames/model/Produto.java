@@ -69,6 +69,10 @@ public class Produto {
 	@JsonIgnoreProperties("produto")
 	private Usuario usuario;
 
+	@OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonIgnoreProperties("produto")
+	private List<Avaliacao> avaliacoes;
+
 	// Construtor vazio para JPA
 	public Produto() {}
 
@@ -198,5 +202,13 @@ public class Produto {
 
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
+	}
+
+	public List<Avaliacao> getAvaliacoes() {
+		return avaliacoes;
+	}
+
+	public void setAvaliacoes(List<Avaliacao> avaliacoes) {
+		this.avaliacoes = avaliacoes;
 	}
 }
