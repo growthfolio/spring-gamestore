@@ -9,17 +9,20 @@
 - [x] **FASE 1** - Fundação Crítica (5/5) ✅
 - [x] **FASE 2** - Qualidade e Segurança (4/4) ✅
 - [x] **FASE 3** - Features de Negócio (3/3) ✅
-- [ ] **FASE 4** - Pré-Produção (0/4)
+- [x] **FASE 4** - Pré-Produção (4/4) ✅
+- [ ] **FASE 5** - Integração IGDB (0/5) 🚀 EM ANDAMENTO
 
-**Status Atual:** 🎉 FASE 3 Completa - Sistema Profissional!  
-**Última Atualização:** 2025-12-09 14:00
-**Total de Commits:** 8 commits estruturados
-**Estatísticas:** 65 arquivos, +4.317 linhas, -243 linhas, 66 classes Java
+**Status Atual:** 🚀 FASE 5 em Progresso - Integração com IGDB API!  
+**Última Atualização:** 2025-12-09 15:15
+**Total de Commits:** 12 commits estruturados
+**Estatísticas:** 81 arquivos, +5.917 linhas, -247 linhas, 79 classes Java
 
 **Commits por Fase:**
 - **FASE 1:** d553970 (Fundação Crítica)
 - **FASE 2:** 914987e (Paginação), cbc0a46 (Logging), 5705f4f (Validações), 4deb628 (Docs)
-- **FASE 3:** 277cecb (Avaliações), 242f6d5 (Favoritos), 08820ce (Carrinho)
+- **FASE 3:** 277cecb (Avaliações), 242f6d5 (Favoritos), 08820ce (Carrinho), cbc7984 (Docs)
+- **FASE 4:** 9ab54ea (Flyway + Docker), 8e94fc5 (Docs)
+- **FASE 5:** 6b4b305 (Modelo de Dados Aprimorado) 🚀
 
 ---
 
@@ -634,6 +637,214 @@ public class ItemCarrinho {
 [INFO] BUILD SUCCESS
 [INFO] Total time:  6.408 s
 ```
+
+---
+
+## 🚀 FASE 5 - INTEGRAÇÃO IGDB API 🚀 EM ANDAMENTO
+
+### Objetivo
+Integrar com a API da IGDB (Internet Game Database) para popular automaticamente o catálogo de jogos com dados profissionais, incluindo imagens, vídeos, plataformas, ratings e metadados.
+
+### 5.1 Modelo de Dados Aprimorado ✅ COMPLETO
+**Status:** ✅ Concluído  
+**Commit:** `6b4b305`  
+**Prioridade:** 🔴 CRÍTICA
+
+**Tarefas Realizadas:**
+- [x] Criar 5 novos Enums:
+  - [x] `OrigemEnum` (MANUAL, IGDB, RAWG, CHEAPSHARK)
+  - [x] `StatusJogoEnum` (RELEASED, EARLY_ACCESS, BETA, UPCOMING, CANCELLED, etc)
+  - [x] `TipoPlataformaEnum` (CONSOLE, PC, MOBILE, HANDHELD, VR, CLOUD)
+  - [x] `TipoImagemEnum` (CAPA, SCREENSHOT, ARTWORK, LOGO, BANNER, ICONE)
+  - [x] `TipoVideoEnum` (TRAILER, GAMEPLAY, REVIEW, TEASER, MAKING_OF, etc)
+- [x] Criar 4 novas Entidades JPA:
+  - [x] `Plataforma` (normalização de plataformas com N:N)
+  - [x] `ProdutoOrigemExterna` (rastreamento de importação e sincronização)
+  - [x] `ProdutoImagem` (múltiplas imagens estruturadas por produto)
+  - [x] `ProdutoVideo` (trailers e vídeos do YouTube)
+- [x] Aprimorar entidade `Produto`:
+  - [x] Adicionar campo `slug` (URL amigável)
+  - [x] Adicionar campo `descricaoCompleta` (TEXT sem limite)
+  - [x] Adicionar campos de rating (`ratingIgdb`, `ratingMetacritic`, `totalVotosExternos`)
+  - [x] Adicionar campo `popularidade` e `status`
+  - [x] Adicionar campos de auditoria (`dataCriacao`, `dataAtualizacao`)
+  - [x] Adicionar relacionamento N:N com `Plataforma`
+  - [x] Adicionar relacionamento N:N com `Categoria` (como gêneros)
+  - [x] Adicionar relacionamentos 1:N com `ProdutoImagem` e `ProdutoVideo`
+  - [x] Adicionar relacionamento 1:1 com `ProdutoOrigemExterna`
+  - [x] Adicionar `Map<String, String> linksExternos`
+  - [x] Adicionar métodos auxiliares (gerarSlug, getPrecoComDesconto, isDisponivelParaVenda)
+  - [x] Adicionar @PrePersist e @PreUpdate para auditoria
+- [x] Aprimorar entidade `Categoria`:
+  - [x] Adicionar campo `slug` e `idIgdb`
+  - [x] Adicionar relacionamento N:N com `Produto` (para gêneros)
+- [x] Criar 4 novos Repositories:
+  - [x] `PlataformaRepository` (12 métodos de query)
+  - [x] `ProdutoOrigemExternaRepository` (controle de sincronização)
+  - [x] `ProdutoImagemRepository` (gestão de imagens)
+  - [x] `ProdutoVideoRepository` (gestão de vídeos)
+- [x] Criar Migration `V2__add_igdb_integration_support.sql`:
+  - [x] 7 novas tabelas criadas
+  - [x] 11 plataformas principais pré-populadas (PS5, Xbox, Switch, PC, etc)
+  - [x] 15+ índices para performance
+  - [x] Atualização automática de dados existentes
+- [x] Compilar e validar modelo
+
+**Estatísticas:**
+- **Arquivos criados:** 14 novos arquivos
+- **Arquivos modificados:** 2 (Produto.java, Categoria.java)
+- **Linhas adicionadas:** +1.600
+- **Compilação:** ✅ BUILD SUCCESS (79 arquivos compilados)
+
+**Arquivos Criados:**
+```
+src/main/java/com/energygames/lojadegames/
+├── enums/
+│   ├── OrigemEnum.java
+│   ├── StatusJogoEnum.java
+│   ├── TipoImagemEnum.java
+│   ├── TipoPlataformaEnum.java
+│   └── TipoVideoEnum.java
+├── model/
+│   ├── Plataforma.java
+│   ├── ProdutoImagem.java
+│   ├── ProdutoOrigemExterna.java
+│   └── ProdutoVideo.java
+└── repository/
+    ├── PlataformaRepository.java
+    ├── ProdutoImagemRepository.java
+    ├── ProdutoOrigemExternaRepository.java
+    └── ProdutoVideoRepository.java
+
+src/main/resources/db/migration/
+└── V2__add_igdb_integration_support.sql
+```
+
+---
+
+### 5.2 Services de Integração IGDB 🔄 EM PROGRESSO
+**Status:** 🔄 Em Andamento  
+**Prioridade:** 🔴 CRÍTICA
+
+**Tarefas:**
+- [ ] Criar DTOs para API IGDB:
+  - [ ] `IgdbGameDTO` (resposta da API de jogos)
+  - [ ] `IgdbCoverDTO` (resposta de capas)
+  - [ ] `IgdbScreenshotDTO` (resposta de screenshots)
+  - [ ] `IgdbVideoDTO` (resposta de vídeos)
+  - [ ] `IgdbPlatformDTO` (resposta de plataformas)
+  - [ ] `IgdbGenreDTO` (resposta de gêneros)
+  - [ ] `IgdbCompanyDTO` (resposta de empresas)
+- [ ] Criar Services de integração:
+  - [ ] `IgdbAuthService` (autenticação Twitch OAuth2)
+  - [ ] `IgdbApiClient` (client HTTP para consumir API)
+  - [ ] `IgdbQueryBuilder` (construtor de queries IGDB)
+  - [ ] `IgdbMapperService` (mapear IGDB → Produto)
+  - [ ] `IgdbImportService` (orquestrar importação completa)
+  - [ ] `IgdbSyncService` (sincronização de dados existentes)
+- [ ] Criar configurações:
+  - [ ] Adicionar propriedades no `application.properties`:
+    - [ ] `igdb.api.url`
+    - [ ] `igdb.client.id`
+    - [ ] `igdb.client.secret`
+    - [ ] `igdb.sync.enabled`
+    - [ ] `igdb.sync.interval`
+  - [ ] Criar `IgdbConfigProperties` (@ConfigurationProperties)
+- [ ] Adicionar dependências no `pom.xml`:
+  - [ ] `spring-boot-starter-webflux` (WebClient para consumir API)
+
+**Arquivos a Criar:**
+```
+src/main/java/com/energygames/lojadegames/
+├── dto/igdb/
+│   ├── IgdbGameDTO.java
+│   ├── IgdbCoverDTO.java
+│   ├── IgdbScreenshotDTO.java
+│   ├── IgdbVideoDTO.java
+│   ├── IgdbPlatformDTO.java
+│   ├── IgdbGenreDTO.java
+│   └── IgdbCompanyDTO.java
+├── service/igdb/
+│   ├── IgdbAuthService.java
+│   ├── IgdbApiClient.java
+│   ├── IgdbQueryBuilder.java
+│   ├── IgdbMapperService.java
+│   ├── IgdbImportService.java
+│   └── IgdbSyncService.java
+└── configuration/
+    └── IgdbConfigProperties.java
+```
+
+---
+
+### 5.3 Controller Administrativo
+**Status:** ⏳ Aguardando  
+**Prioridade:** 🟡 ALTA
+
+**Tarefas:**
+- [ ] Criar `IgdbAdminController`:
+  - [ ] `POST /admin/igdb/import/{gameId}` - Importar jogo por ID da IGDB
+  - [ ] `POST /admin/igdb/import/search?name=` - Buscar e importar por nome
+  - [ ] `POST /admin/igdb/sync/{produtoId}` - Sincronizar produto específico
+  - [ ] `POST /admin/igdb/sync/all` - Sincronizar todos produtos da IGDB
+  - [ ] `GET /admin/igdb/status` - Status da sincronização
+  - [ ] `GET /admin/igdb/stats` - Estatísticas de importação
+  - [ ] `PUT /admin/igdb/toggle-sync/{produtoId}` - Ativar/desativar sincronização
+- [ ] Adicionar validações e permissões (apenas ADMIN)
+- [ ] Adicionar documentação Swagger
+- [ ] Criar DTOs de request/response para endpoints admin
+
+**Arquivos a Criar:**
+```
+src/main/java/com/energygames/lojadegames/
+├── controller/
+│   └── IgdbAdminController.java
+└── dto/response/
+    ├── IgdbImportStatusDTO.java
+    ├── IgdbSyncStatsDTO.java
+    └── IgdbSearchResultDTO.java
+```
+
+---
+
+### 5.4 Scheduler de Sincronização
+**Status:** ⏳ Aguardando  
+**Prioridade:** 🟢 MÉDIA
+
+**Tarefas:**
+- [ ] Criar `IgdbSyncScheduler`:
+  - [ ] Sincronização automática diária de produtos desatualizados
+  - [ ] Configurável via `@Scheduled` e `application.properties`
+  - [ ] Logs estruturados de execução
+  - [ ] Métricas de produtos sincronizados
+- [ ] Adicionar flag de controle no banco
+- [ ] Adicionar endpoint para forçar execução manual
+- [ ] Criar relatório de sincronização
+
+**Arquivos a Criar:**
+```
+src/main/java/com/energygames/lojadegames/
+└── scheduler/
+    └── IgdbSyncScheduler.java
+```
+
+---
+
+### 5.5 Testes e Documentação
+**Status:** ⏳ Aguardando  
+**Prioridade:** 🟢 MÉDIA
+
+**Tarefas:**
+- [ ] Criar testes unitários:
+  - [ ] `IgdbMapperServiceTest`
+  - [ ] `IgdbQueryBuilderTest`
+  - [ ] `IgdbImportServiceTest`
+- [ ] Atualizar README.md:
+  - [ ] Seção de integração IGDB
+  - [ ] Guia de obtenção de credenciais Twitch
+  - [ ] Exemplos de importação
+- [ ] Atualizar Swagger com novos endpoints
+- [ ] Criar guia de troubleshooting
 
 ---
 
