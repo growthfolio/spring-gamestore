@@ -1,9 +1,7 @@
 package com.energygames.lojadegames.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.energygames.lojadegames.model.Usuario;
-import com.energygames.lojadegames.model.UsuarioLogin;
-import com.energygames.lojadegames.repository.UsuarioRepository;
+import com.energygames.lojadegames.dto.request.LoginRequestDTO;
+import com.energygames.lojadegames.dto.request.UsuarioRequestDTO;
+import com.energygames.lojadegames.dto.response.AuthResponseDTO;
+import com.energygames.lojadegames.dto.response.UsuarioResponseDTO;
 import com.energygames.lojadegames.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -27,51 +26,35 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UsuarioController {
 
-	@Autowired
-	private UsuarioService usuarioService;
+	private final UsuarioService usuarioService;
 
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+	public UsuarioController(UsuarioService usuarioService) {
+		this.usuarioService = usuarioService;
+	}
 	
 	@GetMapping("/all")
-	public ResponseEntity <List<Usuario>> getAll(){
-		
-		return ResponseEntity.ok(usuarioRepository.findAll());
-		
+	public ResponseEntity<List<UsuarioResponseDTO>> getAll(){
+		return ResponseEntity.ok(usuarioService.buscarTodos());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Usuario> getById(@PathVariable Long id) {
-		return usuarioRepository.findById(id)
-			.map(resposta -> ResponseEntity.ok(resposta))
-			.orElse(ResponseEntity.notFound().build());
+	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
+		return ResponseEntity.ok(usuarioService.buscarPorId(id));
 	}
 	
 	@PostMapping("/logar")
-	public ResponseEntity<UsuarioLogin> autenticarUsuario(@RequestBody Optional<UsuarioLogin> usuarioLogin){
-		
-		return usuarioService.autenticarUsuario(usuarioLogin)
-				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+	public ResponseEntity<AuthResponseDTO> autenticar(@Valid @RequestBody LoginRequestDTO dto){
+		return ResponseEntity.ok(usuarioService.autenticar(dto));
 	}
-    
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<Usuario> postUsuario(@RequestBody @Valid Usuario usuario) {
-
-		return usuarioService.cadastrarUsuario(usuario)
-			.map(resposta -> ResponseEntity.status(HttpStatus.CREATED).body(resposta))
-			.orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-
+	public ResponseEntity<UsuarioResponseDTO> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto) {
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(usuarioService.cadastrar(dto));
 	}
 
-	@PutMapping("/atualizar")
-	public ResponseEntity<Usuario> putUsuario(@Valid @RequestBody Usuario usuario) {
-		
-		return usuarioService.atualizarUsuario(usuario)
-			.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-			.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-		
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
+		return ResponseEntity.ok(usuarioService.atualizar(id, dto));
 	}
-
 }
