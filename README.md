@@ -451,13 +451,13 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 **Energy Games Team**
 
-- GitHub: [@seu-usuario](https://github.com/seu-usuario)
-- LinkedIn: [Seu Nome](https://linkedin.com/in/seu-perfil)
+- GitHub: [@felipemacedo1](https://github.com/felipemacedo1)
+- LinkedIn: [Felipe Macedo](https://linkedin.com/in/felipemacedo1)
 
 ## 📞 Suporte
 
 Para dúvidas ou sugestões:
-- Abra uma [issue](https://github.com/seu-usuario/spring-gamestore/issues)
+- Abra uma [issue](https://github.com/felipemacedo1/spring-gamestore/issues)
 - Entre em contato: contato@energygames.com
 
 ---
