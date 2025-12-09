@@ -555,7 +555,7 @@ public class ItemCarrinho {
 
 **Tarefas:**
 - [ ] Atualizar README.md:
-  - [ ] Descrição bem feita
+  - [ ] Descrição bem feita (devemos ressaltar que o projeto foi desenvolvido inicialmente como atividade avaliativa no bootcamp Java FullStack da generation)
   - [ ] Tecnologias utilizadas
   - [ ] Como rodar localmente
   - [ ] Variáveis de ambiente necessárias
