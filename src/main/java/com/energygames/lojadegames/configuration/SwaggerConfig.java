@@ -20,18 +20,8 @@ public class SwaggerConfig {
 		return new OpenAPI()
 				.info(new Info()
 						.title("Projeto Energy Games")
-						.description("Projeto Energy Games - Felipe Macedo\n\n" +
-								"**Novidades:**\n" +
-								"- ✅ Integração completa com IGDB API\n" +
-								"- ✅ Importação automática de jogos\n" +
-								"- ✅ Sincronização periódica de dados\n" +
-								"- ✅ Endpoints administrativos para gerenciar importações\n\n" +
-								"**Endpoints IGDB Admin (requer role ADMIN):**\n" +
-								"- Importar jogo por ID\n" +
-								"- Buscar jogos na IGDB\n" +
-								"- Sincronizar produtos\n" +
-								"- Estatísticas de importação")
-						.version("v1.0.0")
+						.description("Projeto Energy Games - Felipe Macedo")
+						.version("v0.0.1")
 						.license(new License()
 								.name("Felipe Macedo")
 								.url("https://github.com/felipemacedo1/"))

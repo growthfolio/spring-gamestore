@@ -1,10 +1,9 @@
 package com.energygames.lojadegames.security;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.energygames.lojadegames.model.Usuario;
@@ -16,20 +15,18 @@ public class UserDetailsImpl implements UserDetails {
 
 	private String userName;
 	private String password;
-	private Collection<? extends GrantedAuthority> authorities;
+	private List<GrantedAuthority> authorities;
 
 	public UserDetailsImpl(Usuario user) {
 		this.userName = user.getUsuario();
 		this.password = user.getSenha();
-		this.authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.name()))
-				.collect(Collectors.toList());
 	}
 
 	public UserDetailsImpl() {	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
+
 		return authorities;
 	}
 

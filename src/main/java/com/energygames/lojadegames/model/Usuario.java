@@ -1,27 +1,18 @@
 package com.energygames.lojadegames.model;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.energygames.lojadegames.enums.RoleEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -49,12 +40,6 @@ public class Usuario {
 
 	@Size(max = 5000, message = "O link da foto não pode ser maior do que 5000 caracteres")
 	private String foto;
-
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
-	@Column(name = "role")
-	@Enumerated(EnumType.STRING)
-	private Set<RoleEnum> roles = new HashSet<>();
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "usuario", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties("usuario")
@@ -108,14 +93,6 @@ public class Usuario {
 
 	public void setProduto(List<Produto> produto) {
 		this.produto = produto;
-	}
-
-	public Set<RoleEnum> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<RoleEnum> roles) {
-		this.roles = roles;
 	}
 
 }

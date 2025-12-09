@@ -1,9 +1,7 @@
 package com.energygames.lojadegames.model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -38,17 +36,6 @@ public class Categoria {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "categoria", cascade = CascadeType.REMOVE)
 	@JsonIgnoreProperties("categoria")
 	private List<Produto> produto;
-
-	// Novo relacionamento N:N (categoria agora também representa gêneros)
-	@ManyToMany(mappedBy = "generos")
-	@JsonIgnoreProperties("generos")
-	private Set<Produto> produtos = new HashSet<>();
-
-	@Column(unique = true, length = 100)
-	private String slug; // URL amigável
-
-	@Column(name = "id_igdb")
-	private Integer idIgdb; // ID do gênero na API IGDB
 
 	// Construtor vazio necessário para JPA
 	public Categoria() {}
@@ -116,29 +103,5 @@ public class Categoria {
 
 	public void setProduto(List<Produto> produto) {
 		this.produto = produto;
-	}
-
-	public Set<Produto> getProdutos() {
-		return produtos;
-	}
-
-	public void setProdutos(Set<Produto> produtos) {
-		this.produtos = produtos;
-	}
-
-	public String getSlug() {
-		return slug;
-	}
-
-	public void setSlug(String slug) {
-		this.slug = slug;
-	}
-
-	public Integer getIdIgdb() {
-		return idIgdb;
-	}
-
-	public void setIdIgdb(Integer idIgdb) {
-		this.idIgdb = idIgdb;
 	}
 }
