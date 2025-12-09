@@ -71,11 +71,6 @@ class IgdbImportServiceTest {
         when(origemExternaRepository.findByOrigemAndIdExterno(OrigemEnum.IGDB, "1234"))
             .thenReturn(Optional.empty());
         when(apiClient.getGameById(1234L)).thenReturn(gameDTO);
-        when(apiClient.getCoverById(any())).thenReturn(null);
-        when(apiClient.getScreenshotsByIds(any())).thenReturn(List.of());
-        when(apiClient.getVideosByIds(any())).thenReturn(List.of());
-        when(apiClient.getPlatformsByIds(any())).thenReturn(List.of());
-        when(apiClient.getGenresByIds(any())).thenReturn(List.of());
         when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any()))
             .thenReturn(produto);
         when(produtoRepository.save(any(Produto.class))).thenReturn(produto);
@@ -183,11 +178,6 @@ class IgdbImportServiceTest {
         novoProduto.setNome("Game 1");
         
         when(apiClient.getGameById(1L)).thenReturn(game1);
-        when(apiClient.getCoverById(any())).thenReturn(null);
-        when(apiClient.getScreenshotsByIds(any())).thenReturn(List.of());
-        when(apiClient.getVideosByIds(any())).thenReturn(List.of());
-        when(apiClient.getPlatformsByIds(any())).thenReturn(List.of());
-        when(apiClient.getGenresByIds(any())).thenReturn(List.of());
         when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any()))
             .thenReturn(novoProduto);
         when(produtoRepository.save(any())).thenReturn(novoProduto);

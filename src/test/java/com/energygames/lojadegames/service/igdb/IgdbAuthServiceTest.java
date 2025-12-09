@@ -28,9 +28,9 @@ class IgdbAuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(webClientBuilder.build()).thenReturn(mock(WebClient.class));
-        when(config.getClientId()).thenReturn("test-client-id");
-        when(config.getClientSecret()).thenReturn("test-client-secret");
+        lenient().when(webClientBuilder.build()).thenReturn(mock(WebClient.class));
+        lenient().when(config.getClientId()).thenReturn("test-client-id");
+        lenient().when(config.getClientSecret()).thenReturn("test-client-secret");
         
         authService = new IgdbAuthService(config, webClientBuilder);
     }

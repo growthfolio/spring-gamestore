@@ -151,7 +151,7 @@ public class IgdbImportService {
 
                     if (existing.isPresent()) {
                         log.debug("Jogo '{}' já importado, pulando", game.getName());
-                        return existing.get().getProduto();
+                        return null; // Retorna null para filtrar duplicatas
                     }
 
                     return importGameById(game.getId());

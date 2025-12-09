@@ -1,5 +1,6 @@
 package com.energygames.lojadegames.controller;
 
+import com.energygames.lojadegames.configuration.IgdbConfigProperties;
 import com.energygames.lojadegames.dto.igdb.IgdbGameDTO;
 import com.energygames.lojadegames.enums.OrigemEnum;
 import com.energygames.lojadegames.model.Produto;
@@ -49,6 +50,15 @@ class IgdbAdminControllerTest {
 
     @MockBean
     private ProdutoOrigemExternaRepository origemExternaRepository;
+
+    @MockBean
+    private IgdbConfigProperties igdbConfigProperties;
+
+    @MockBean
+    private com.energygames.lojadegames.repository.ProdutoRepository produtoRepository;
+
+    @MockBean
+    private com.energygames.lojadegames.scheduler.IgdbSyncScheduler syncScheduler;
 
     private Produto produto;
     private IgdbGameDTO gameDTO;
