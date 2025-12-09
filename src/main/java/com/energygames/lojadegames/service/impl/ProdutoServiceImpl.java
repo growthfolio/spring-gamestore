@@ -91,11 +91,13 @@ public class ProdutoServiceImpl implements ProdutoService {
 						"Categoria não encontrada com ID: " + dto.getCategoriaId()));
 
 		if (categoria.getAtivo() == null || !categoria.getAtivo()) {
+			log.warn("Tentativa de criar produto em categoria inativa. Categoria ID: {}", categoria.getId());
 			throw new BusinessException("Categoria inativa não pode receber produtos");
 		}
 
 		// Validar estoque
 		if (dto.getEstoque() < 0) {
+			log.warn("Tentativa de criar produto com estoque negativo: {}", dto.getEstoque());
 			throw new BusinessException("Estoque não pode ser negativo");
 		}
 
@@ -103,7 +105,21 @@ public class ProdutoServiceImpl implements ProdutoService {
 		if (dto.getDesconto() != null && 
 			(dto.getDesconto().compareTo(java.math.BigDecimal.ZERO) < 0 || 
 			 dto.getDesconto().compareTo(java.math.BigDecimal.valueOf(100)) > 0)) {
+			log.warn("Tentativa de criar produto com desconto inválido: {}", dto.getDesconto());
 			throw new BusinessException("Desconto deve estar entre 0 e 100");
+		}
+
+		// Validar data de lançamento
+		if (dto.getDataLancamento().isAfter(java.time.LocalDate.now())) {
+			log.warn("Tentativa de criar produto com data de lançamento futura: {}", dto.getDataLancamento());
+			throw new BusinessException("Data de lançamento não pode ser futura");
+		}
+
+		// Calcular preço com desconto
+		java.math.BigDecimal precoFinal = calcularPrecoComDesconto(dto.getPreco(), dto.getDesconto());
+		if (precoFinal.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+			log.warn("Preço final calculado é zero ou negativo. Preço: {}, Desconto: {}", dto.getPreco(), dto.getDesconto());
+			throw new BusinessException("Preço final do produto não pode ser zero ou negativo");
 		}
 
 		// Obter usuário autenticado
@@ -112,7 +128,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 		Produto produto = produtoMapper.toEntity(dto, categoria, usuario);
 		Produto produtoSalvo = produtoRepository.save(produto);
 
-		log.info("Produto criado com sucesso. ID: {}", produtoSalvo.getId());
+		log.info("Produto criado com sucesso. ID: {}, Preço: {}, Desconto: {}%", 
+			produtoSalvo.getId(), produtoSalvo.getPreco(), produtoSalvo.getDesconto());
 		return produtoMapper.toResponseDTO(produtoSalvo);
 	}
 
@@ -130,11 +147,14 @@ public class ProdutoServiceImpl implements ProdutoService {
 						"Categoria não encontrada com ID: " + dto.getCategoriaId()));
 
 		if (categoria.getAtivo() == null || !categoria.getAtivo()) {
+			log.warn("Tentativa de atualizar produto para categoria inativa. Produto ID: {}, Categoria ID: {}", 
+				id, categoria.getId());
 			throw new BusinessException("Categoria inativa não pode receber produtos");
 		}
 
 		// Validar estoque
 		if (dto.getEstoque() < 0) {
+			log.warn("Tentativa de atualizar produto com estoque negativo. Produto ID: {}", id);
 			throw new BusinessException("Estoque não pode ser negativo");
 		}
 
@@ -142,13 +162,29 @@ public class ProdutoServiceImpl implements ProdutoService {
 		if (dto.getDesconto() != null && 
 			(dto.getDesconto().compareTo(java.math.BigDecimal.ZERO) < 0 || 
 			 dto.getDesconto().compareTo(java.math.BigDecimal.valueOf(100)) > 0)) {
+			log.warn("Tentativa de atualizar produto com desconto inválido. Produto ID: {}, Desconto: {}", 
+				id, dto.getDesconto());
 			throw new BusinessException("Desconto deve estar entre 0 e 100");
+		}
+
+		// Validar data de lançamento
+		if (dto.getDataLancamento().isAfter(java.time.LocalDate.now())) {
+			log.warn("Tentativa de atualizar produto com data de lançamento futura. Produto ID: {}", id);
+			throw new BusinessException("Data de lançamento não pode ser futura");
+		}
+
+		// Calcular preço com desconto
+		java.math.BigDecimal precoFinal = calcularPrecoComDesconto(dto.getPreco(), dto.getDesconto());
+		if (precoFinal.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+			log.warn("Preço final calculado é zero ou negativo na atualização. Produto ID: {}", id);
+			throw new BusinessException("Preço final do produto não pode ser zero ou negativo");
 		}
 
 		produtoMapper.updateEntity(dto, produto, categoria);
 		Produto produtoAtualizado = produtoRepository.save(produto);
 
-		log.info("Produto atualizado com sucesso. ID: {}", id);
+		log.info("Produto atualizado com sucesso. ID: {}, Novo preço: {}, Novo desconto: {}%", 
+			id, produtoAtualizado.getPreco(), produtoAtualizado.getDesconto());
 		return produtoMapper.toResponseDTO(produtoAtualizado);
 	}
 
@@ -173,5 +209,15 @@ public class ProdutoServiceImpl implements ProdutoService {
 		String email = authentication.getName();
 		return usuarioRepository.findByUsuario(email)
 				.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + email));
+	}
+
+	private java.math.BigDecimal calcularPrecoComDesconto(java.math.BigDecimal preco, java.math.BigDecimal desconto) {
+		if (desconto == null || desconto.compareTo(java.math.BigDecimal.ZERO) == 0) {
+			return preco;
+		}
+		java.math.BigDecimal percentualDesconto = desconto.divide(
+			java.math.BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
+		java.math.BigDecimal valorDesconto = preco.multiply(percentualDesconto);
+		return preco.subtract(valorDesconto).setScale(2, java.math.RoundingMode.HALF_UP);
 	}
 }
