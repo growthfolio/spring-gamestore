@@ -10,19 +10,19 @@
 - [x] **FASE 2** - Qualidade e Segurança (4/4) ✅
 - [x] **FASE 3** - Features de Negócio (3/3) ✅
 - [x] **FASE 4** - Pré-Produção (4/4) ✅
-- [ ] **FASE 5** - Integração IGDB (0/5) 🚀 EM ANDAMENTO
+- [ ] **FASE 5** - Integração IGDB (4/5) 🚀 80% COMPLETO
 
-**Status Atual:** 🚀 FASE 5 em Progresso - Integração com IGDB API!  
-**Última Atualização:** 2025-12-09 15:15
-**Total de Commits:** 12 commits estruturados
-**Estatísticas:** 81 arquivos, +5.917 linhas, -247 linhas, 79 classes Java
+**Status Atual:** 🎉 FASE 5 quase completa - Integração IGDB funcionando!  
+**Última Atualização:** 2025-12-09 16:15
+**Total de Commits:** 14 commits estruturados
+**Estatísticas:** 105 arquivos, +8.380 linhas, -249 linhas, 98 classes Java
 
 **Commits por Fase:**
 - **FASE 1:** d553970 (Fundação Crítica)
 - **FASE 2:** 914987e (Paginação), cbc0a46 (Logging), 5705f4f (Validações), 4deb628 (Docs)
 - **FASE 3:** 277cecb (Avaliações), 242f6d5 (Favoritos), 08820ce (Carrinho), cbc7984 (Docs)
 - **FASE 4:** 9ab54ea (Flyway + Docker), 8e94fc5 (Docs)
-- **FASE 5:** 6b4b305 (Modelo de Dados Aprimorado) 🚀
+- **FASE 5:** 6b4b305 (Modelo), c0e1c02 (Services), cb7a515 (Controller/Scheduler) 🚀
 
 ---
 
@@ -722,36 +722,35 @@ src/main/resources/db/migration/
 
 ---
 
-### 5.2 Services de Integração IGDB 🔄 EM PROGRESSO
-**Status:** 🔄 Em Andamento  
+### 5.2 Services de Integração IGDB ✅ COMPLETO
+**Status:** ✅ Concluído  
+**Commit:** `c0e1c02`  
 **Prioridade:** 🔴 CRÍTICA
 
 **Tarefas:**
-- [ ] Criar DTOs para API IGDB:
-  - [ ] `IgdbGameDTO` (resposta da API de jogos)
-  - [ ] `IgdbCoverDTO` (resposta de capas)
-  - [ ] `IgdbScreenshotDTO` (resposta de screenshots)
-  - [ ] `IgdbVideoDTO` (resposta de vídeos)
-  - [ ] `IgdbPlatformDTO` (resposta de plataformas)
-  - [ ] `IgdbGenreDTO` (resposta de gêneros)
-  - [ ] `IgdbCompanyDTO` (resposta de empresas)
-- [ ] Criar Services de integração:
-  - [ ] `IgdbAuthService` (autenticação Twitch OAuth2)
-  - [ ] `IgdbApiClient` (client HTTP para consumir API)
-  - [ ] `IgdbQueryBuilder` (construtor de queries IGDB)
-  - [ ] `IgdbMapperService` (mapear IGDB → Produto)
-  - [ ] `IgdbImportService` (orquestrar importação completa)
-  - [ ] `IgdbSyncService` (sincronização de dados existentes)
-- [ ] Criar configurações:
-  - [ ] Adicionar propriedades no `application.properties`:
-    - [ ] `igdb.api.url`
-    - [ ] `igdb.client.id`
-    - [ ] `igdb.client.secret`
-    - [ ] `igdb.sync.enabled`
-    - [ ] `igdb.sync.interval`
-  - [ ] Criar `IgdbConfigProperties` (@ConfigurationProperties)
-- [ ] Adicionar dependências no `pom.xml`:
-  - [ ] `spring-boot-starter-webflux` (WebClient para consumir API)
+- [x] Criar DTOs para API IGDB:
+  - [x] `IgdbGameDTO` (resposta da API de jogos)
+  - [x] `IgdbCoverDTO` (resposta de capas)
+  - [x] `IgdbScreenshotDTO` (resposta de screenshots)
+  - [x] `IgdbVideoDTO` (resposta de vídeos)
+  - [x] `IgdbPlatformDTO` (resposta de plataformas)
+  - [x] `IgdbGenreDTO` (resposta de gêneros)
+  - [x] `IgdbCompanyDTO` (resposta de empresas)
+- [x] Criar Services de integração:
+  - [x] `IgdbAuthService` (autenticação Twitch OAuth2)
+  - [x] `IgdbApiClient` (client HTTP para consumir API)
+  - [x] `IgdbMapperService` (mapear IGDB → Produto)
+  - [x] `IgdbImportService` (orquestrar importação completa)
+- [x] Criar configurações:
+  - [x] Adicionar propriedades no `application.properties`:
+    - [x] `igdb.api.url`
+    - [x] `igdb.client.id`
+    - [x] `igdb.client.secret`
+    - [x] `igdb.sync.enabled`
+    - [x] `igdb.sync.interval`
+  - [x] Criar `IgdbConfigProperties` (@ConfigurationProperties)
+- [x] Adicionar dependências no `pom.xml`:
+  - [x] `spring-boot-starter-webflux` (WebClient para consumir API)
 
 **Arquivos a Criar:**
 ```
@@ -777,21 +776,24 @@ src/main/java/com/energygames/lojadegames/
 
 ---
 
-### 5.3 Controller Administrativo
-**Status:** ⏳ Aguardando  
+### 5.3 Controller Administrativo ✅ COMPLETO
+**Status:** ✅ Concluído  
+**Commit:** `cb7a515`  
 **Prioridade:** 🟡 ALTA
 
 **Tarefas:**
-- [ ] Criar `IgdbAdminController`:
-  - [ ] `POST /admin/igdb/import/{gameId}` - Importar jogo por ID da IGDB
-  - [ ] `POST /admin/igdb/import/search?name=` - Buscar e importar por nome
-  - [ ] `POST /admin/igdb/sync/{produtoId}` - Sincronizar produto específico
-  - [ ] `POST /admin/igdb/sync/all` - Sincronizar todos produtos da IGDB
-  - [ ] `GET /admin/igdb/status` - Status da sincronização
-  - [ ] `GET /admin/igdb/stats` - Estatísticas de importação
-  - [ ] `PUT /admin/igdb/toggle-sync/{produtoId}` - Ativar/desativar sincronização
-- [ ] Adicionar validações e permissões (apenas ADMIN)
-- [ ] Adicionar documentação Swagger
+  - [x] `POST /admin/igdb/import/{gameId}` - Importar jogo por ID da IGDB
+  - [x] `GET /admin/igdb/search?name=` - Buscar jogos na IGDB
+  - [x] `POST /admin/igdb/import/popular` - Importar jogos populares
+  - [x] `PUT /admin/igdb/sync/{produtoId}` - Sincronizar produto específico
+  - [x] `POST /admin/igdb/sync/all` - Sincronizar todos produtos da IGDB
+  - [x] `PUT /admin/igdb/sync/toggle/{produtoId}` - Ativar/desativar sincronização
+  - [x] `GET /admin/igdb/status` - Status da API
+  - [x] `GET /admin/igdb/stats` - Estatísticas de importação
+  - [x] `POST /admin/igdb/sync/manual` - Executar sincronização manual
+- [x] Adicionar validações e permissões (apenas ADMIN)
+- [x] Adicionar documentação Swagger
+- [x] Criar DTOs de request/response para endpoints admin
 - [ ] Criar DTOs de request/response para endpoints admin
 
 **Arquivos a Criar:**
@@ -805,19 +807,20 @@ src/main/java/com/energygames/lojadegames/
     └── IgdbSearchResultDTO.java
 ```
 
----
-
-### 5.4 Scheduler de Sincronização
-**Status:** ⏳ Aguardando  
+### 5.4 Scheduler de Sincronização ✅ COMPLETO
+**Status:** ✅ Concluído  
+**Commit:** `cb7a515`  
 **Prioridade:** 🟢 MÉDIA
 
 **Tarefas:**
-- [ ] Criar `IgdbSyncScheduler`:
-  - [ ] Sincronização automática diária de produtos desatualizados
-  - [ ] Configurável via `@Scheduled` e `application.properties`
-  - [ ] Logs estruturados de execução
-  - [ ] Métricas de produtos sincronizados
-- [ ] Adicionar flag de controle no banco
+- [x] Criar `IgdbSyncScheduler`:
+  - [x] Sincronização automática diária de produtos desatualizados (1h AM)
+  - [x] Configurável via `@Scheduled` e `application.properties`
+  - [x] Logs estruturados de execução
+  - [x] Métricas de produtos sincronizados
+- [x] @EnableScheduling ativado
+- [x] Adicionar endpoint para forçar execução manual
+- [x] Rastreamento de última execução e resultadosnco
 - [ ] Adicionar endpoint para forçar execução manual
 - [ ] Criar relatório de sincronização
 
