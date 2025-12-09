@@ -1,11 +1,14 @@
 package com.energygames.lojadegames.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,9 +30,14 @@ public class Produto {
 	private String descricao;
 
 	@NotNull(message = "O preço do produto é obrigatório.")
-	private Double preco;
+	@DecimalMin(value = "0.01", message = "Preço deve ser maior que zero")
+	@Column(precision = 10, scale = 2)
+	private BigDecimal preco;
 
-	private Double desconto; // Percentual de desconto (opcional)
+	@DecimalMin(value = "0.0", message = "Desconto não pode ser negativo")
+	@DecimalMax(value = "100.0", message = "Desconto não pode exceder 100%")
+	@Column(precision = 5, scale = 2)
+	private BigDecimal desconto;
 
 	@NotNull(message = "O estoque do produto é obrigatório.")
 	private Integer estoque;
@@ -65,7 +73,7 @@ public class Produto {
 	public Produto() {}
 
 	// Construtor com parâmetros básicos
-	public Produto(String nome, String descricao, Double preco, Integer estoque, String plataforma,
+	public Produto(String nome, String descricao, BigDecimal preco, Integer estoque, String plataforma,
 				   String desenvolvedor, String publisher, LocalDate dataLancamento, Categoria categoria) {
 		this.nome = nome;
 		this.descricao = descricao;
@@ -104,19 +112,19 @@ public class Produto {
 		this.descricao = descricao;
 	}
 
-	public Double getPreco() {
+	public BigDecimal getPreco() {
 		return preco;
 	}
 
-	public void setPreco(Double preco) {
+	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
 	}
 
-	public Double getDesconto() {
+	public BigDecimal getDesconto() {
 		return desconto;
 	}
 
-	public void setDesconto(Double desconto) {
+	public void setDesconto(BigDecimal desconto) {
 		this.desconto = desconto;
 	}
 

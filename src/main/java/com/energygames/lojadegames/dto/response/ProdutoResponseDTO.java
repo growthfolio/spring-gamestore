@@ -1,5 +1,6 @@
 package com.energygames.lojadegames.dto.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -8,9 +9,9 @@ public class ProdutoResponseDTO {
 	private Long id;
 	private String nome;
 	private String descricao;
-	private Double preco;
-	private Double precoComDesconto;
-	private Double desconto;
+	private BigDecimal preco;
+	private BigDecimal precoComDesconto;
+	private BigDecimal desconto;
 	private Integer estoque;
 	private Boolean emEstoque;
 	private String plataforma;
@@ -77,27 +78,27 @@ public class ProdutoResponseDTO {
 		this.descricao = descricao;
 	}
 
-	public Double getPreco() {
+	public BigDecimal getPreco() {
 		return preco;
 	}
 
-	public void setPreco(Double preco) {
+	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
 	}
 
-	public Double getPrecoComDesconto() {
+	public BigDecimal getPrecoComDesconto() {
 		return precoComDesconto;
 	}
 
-	public void setPrecoComDesconto(Double precoComDesconto) {
+	public void setPrecoComDesconto(BigDecimal precoComDesconto) {
 		this.precoComDesconto = precoComDesconto;
 	}
 
-	public Double getDesconto() {
+	public BigDecimal getDesconto() {
 		return desconto;
 	}
 
-	public void setDesconto(Double desconto) {
+	public void setDesconto(BigDecimal desconto) {
 		this.desconto = desconto;
 	}
 

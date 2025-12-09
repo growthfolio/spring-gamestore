@@ -1,9 +1,11 @@
 package com.energygames.lojadegames.dto.request;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,14 +21,14 @@ public class ProdutoRequestDTO {
 	private String descricao;
 
 	@NotNull(message = "Preço é obrigatório")
-	@Min(value = 0, message = "Preço deve ser positivo")
-	private Double preco;
+	@DecimalMin(value = "0.01", message = "Preço deve ser maior que zero")
+	private BigDecimal preco;
 
-	@Min(value = 0, message = "Desconto não pode ser negativo")
-	private Double desconto;
+	@DecimalMin(value = "0.0", message = "Desconto não pode ser negativo")
+	@DecimalMax(value = "100.0", message = "Desconto não pode exceder 100%")
+	private BigDecimal desconto;
 
 	@NotNull(message = "Estoque é obrigatório")
-	@Min(value = 0, message = "Estoque não pode ser negativo")
 	private Integer estoque;
 
 	@NotBlank(message = "Plataforma é obrigatória")
@@ -63,19 +65,19 @@ public class ProdutoRequestDTO {
 		this.descricao = descricao;
 	}
 
-	public Double getPreco() {
+	public BigDecimal getPreco() {
 		return preco;
 	}
 
-	public void setPreco(Double preco) {
+	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
 	}
 
-	public Double getDesconto() {
+	public BigDecimal getDesconto() {
 		return desconto;
 	}
 
-	public void setDesconto(Double desconto) {
+	public void setDesconto(BigDecimal desconto) {
 		this.desconto = desconto;
 	}
 

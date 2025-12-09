@@ -1,10 +1,10 @@
 package com.energygames.lojadegames.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +32,18 @@ public class CategoriaServiceImpl implements CategoriaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CategoriaResponseDTO> buscarTodas() {
-		log.info("Buscando todas as categorias");
-		return categoriaRepository.findAll().stream()
-				.map(categoriaMapper::toResponseDTO)
-				.collect(Collectors.toList());
+	public Page<CategoriaResponseDTO> buscarTodas(String descricao, Pageable pageable) {
+		log.info("Buscando categorias - Descrição: {}, Page: {}", descricao, pageable.getPageNumber());
+		
+		Specification<Categoria> spec = Specification.where(null);
+		
+		if (descricao != null && !descricao.isBlank()) {
+			spec = spec.and((root, query, cb) -> 
+				cb.like(cb.lower(root.get("descricao")), "%" + descricao.toLowerCase() + "%"));
+		}
+		
+		return categoriaRepository.findAll(spec, pageable)
+				.map(categoriaMapper::toResponseDTO);
 	}
 
 	@Override
@@ -46,15 +53,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 		Categoria categoria = categoriaRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com ID: " + id));
 		return categoriaMapper.toResponseDTO(categoria);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CategoriaResponseDTO> buscarPorDescricao(String descricao) {
-		log.info("Buscando categorias por descrição: {}", descricao);
-		return categoriaRepository.findAllByDescricaoContainingIgnoreCase(descricao).stream()
-				.map(categoriaMapper::toResponseDTO)
-				.collect(Collectors.toList());
 	}
 
 	@Override

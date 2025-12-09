@@ -1,7 +1,9 @@
 package com.energygames.lojadegames.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,18 +36,23 @@ public class CategoriaController {
     }
 	
 	@GetMapping
-	public ResponseEntity<List<CategoriaResponseDTO>> getAll(){
-		return ResponseEntity.ok(categoriaService.buscarTodas());
+	public ResponseEntity<Page<CategoriaResponseDTO>> getAll(
+			@RequestParam(required = false) String descricao,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size,
+			@RequestParam(defaultValue = "tipo,asc") String sort) {
+		
+		String[] sortParams = sort.split(",");
+		Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc") 
+				? Sort.Direction.DESC : Sort.Direction.ASC;
+		Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
+		
+		return ResponseEntity.ok(categoriaService.buscarTodas(descricao, pageable));
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<CategoriaResponseDTO> getById(@PathVariable Long id){
 		return ResponseEntity.ok(categoriaService.buscarPorId(id));
-	}
-	
-	@GetMapping("/descricao/{descricao}")
-	public ResponseEntity<List<CategoriaResponseDTO>> getByDescricao(@PathVariable String descricao){
-		return ResponseEntity.ok(categoriaService.buscarPorDescricao(descricao));
 	}
 	 
 	@PostMapping

@@ -1,5 +1,7 @@
 package com.energygames.lojadegames.dto.mapper;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Component;
 
 import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
@@ -67,11 +69,12 @@ public class ProdutoMapper {
 		return dto;
 	}
 
-	private Double calcularPrecoComDesconto(Double preco, Double desconto) {
-		if (preco == null || desconto == null || desconto == 0) {
+	private BigDecimal calcularPrecoComDesconto(BigDecimal preco, BigDecimal desconto) {
+		if (preco == null || desconto == null || desconto.compareTo(BigDecimal.ZERO) == 0) {
 			return preco;
 		}
-		return preco - (preco * desconto / 100);
+		BigDecimal percentualDesconto = desconto.divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+		return preco.subtract(preco.multiply(percentualDesconto)).setScale(2, java.math.RoundingMode.HALF_UP);
 	}
 
 	private ProdutoResponseDTO.CategoriaResumoDTO toCategoriaResumoDTO(Categoria categoria) {

@@ -1,17 +1,16 @@
 package com.energygames.lojadegames.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.energygames.lojadegames.dto.request.CategoriaRequestDTO;
 import com.energygames.lojadegames.dto.response.CategoriaResponseDTO;
 
 public interface CategoriaService {
 	
-	List<CategoriaResponseDTO> buscarTodas();
+	Page<CategoriaResponseDTO> buscarTodas(String descricao, Pageable pageable);
 	
 	CategoriaResponseDTO buscarPorId(Long id);
-	
-	List<CategoriaResponseDTO> buscarPorDescricao(String descricao);
 	
 	CategoriaResponseDTO criar(CategoriaRequestDTO dto);
 	

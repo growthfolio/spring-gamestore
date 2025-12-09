@@ -1,7 +1,6 @@
 package com.energygames.lojadegames.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +42,31 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ProdutoResponseDTO> buscarTodos() {
-		log.info("Buscando todos os produtos");
-		return produtoRepository.findAll().stream()
-				.map(produtoMapper::toResponseDTO)
-				.collect(Collectors.toList());
+	public org.springframework.data.domain.Page<ProdutoResponseDTO> buscarTodos(
+			String nome, Long categoriaId, org.springframework.data.domain.Pageable pageable) {
+		log.info("Buscando produtos com filtros - nome: {}, categoriaId: {}", nome, categoriaId);
+		
+		org.springframework.data.domain.Page<com.energygames.lojadegames.model.Produto> produtos;
+		
+		if (nome != null && categoriaId != null) {
+			produtos = produtoRepository.findAll(
+				(root, query, cb) -> cb.and(
+					cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"),
+					cb.equal(root.get("categoria").get("id"), categoriaId)
+				), pageable);
+		} else if (nome != null) {
+			produtos = produtoRepository.findAll(
+				(root, query, cb) -> cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"), 
+				pageable);
+		} else if (categoriaId != null) {
+			produtos = produtoRepository.findAll(
+				(root, query, cb) -> cb.equal(root.get("categoria").get("id"), categoriaId), 
+				pageable);
+		} else {
+			produtos = produtoRepository.findAll(pageable);
+		}
+		
+		return produtos.map(produtoMapper::toResponseDTO);
 	}
 
 	@Override
@@ -59,14 +78,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 		return produtoMapper.toResponseDTO(produto);
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<ProdutoResponseDTO> buscarPorNome(String nome) {
-		log.info("Buscando produtos por nome: {}", nome);
-		return produtoRepository.findAllByNomeContainingIgnoreCase(nome).stream()
-				.map(produtoMapper::toResponseDTO)
-				.collect(Collectors.toList());
-	}
+
 
 	@Override
 	@Transactional
@@ -88,7 +100,9 @@ public class ProdutoServiceImpl implements ProdutoService {
 		}
 
 		// Validar desconto
-		if (dto.getDesconto() != null && (dto.getDesconto() < 0 || dto.getDesconto() > 100)) {
+		if (dto.getDesconto() != null && 
+			(dto.getDesconto().compareTo(java.math.BigDecimal.ZERO) < 0 || 
+			 dto.getDesconto().compareTo(java.math.BigDecimal.valueOf(100)) > 0)) {
 			throw new BusinessException("Desconto deve estar entre 0 e 100");
 		}
 
@@ -125,7 +139,9 @@ public class ProdutoServiceImpl implements ProdutoService {
 		}
 
 		// Validar desconto
-		if (dto.getDesconto() != null && (dto.getDesconto() < 0 || dto.getDesconto() > 100)) {
+		if (dto.getDesconto() != null && 
+			(dto.getDesconto().compareTo(java.math.BigDecimal.ZERO) < 0 || 
+			 dto.getDesconto().compareTo(java.math.BigDecimal.valueOf(100)) > 0)) {
 			throw new BusinessException("Desconto deve estar entre 0 e 100");
 		}
 
