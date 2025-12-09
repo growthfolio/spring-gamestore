@@ -35,3 +35,8 @@ build/
 ### Logs ###
 logs/
 *.log
+
+### Dev Environment ###
+.dev-pids
+frontend/node_modules
+frontend/dist

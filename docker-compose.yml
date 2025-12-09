@@ -46,6 +46,25 @@ services:
       - gamestore-network
     restart: unless-stopped
 
+  # React Frontend (Git Submodule)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gamestore-frontend
+    depends_on:
+      - app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - gamestore-network
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    restart: unless-stopped
+
 volumes:
   mysql_data:
     driver: local
