@@ -89,8 +89,7 @@ spring-gamestore/
 ## 🔄 Guias e Documentação
 
 - [📖 Roadmap de Refatoração](REFACTORING_ROADMAP.md) - Planejamento detalhado das melhorias
-- [🧩 Guia de Submódulos Git](SUBMODULES.md) - Como gerenciar o frontend React
-- [⚛️ Requisitos do Frontend](FRONTEND_REQUIREMENTS.md) - Especificações da interface
+- [⚛️ Frontend React](https://github.com/growthfolio/react-gamestore-front) - Interface web separada
 
 ## ⚙️ Como Executar
 
