@@ -67,12 +67,269 @@ spring-gamestore/
 - **Category organization:** Hierarquia de categorias
 - **Inventory control:** Controle de estoque
 - **Search functionality:** Busca e filtros avançados
-- **Price management:** Gestão de preços e promoções
 
-### 🔐 Security Implementation
-- **JWT Authentication:** Autenticação baseada em tokens
-- **Role-based access:** Controle de acesso por perfis
-- **Password encryption:** Criptografia de senhas
+### 🔐 Spring Security & JWT
+- **Stateless authentication:** Tokens JWT
+- **Password encryption:** BCrypt hashing
+- **Role-based access:** Controle de permissões
+- **Security filters:** Cadeia de filtros customizados
+
+### 🗄️ Spring Data JPA
+- **Entity relationships:** OneToMany, ManyToOne
+- **Query methods:** Derived queries e @Query
+- **Pagination:** Paginação e ordenação
+- **Transactions:** Gestão transacional
+
+### 🧪 Testing Best Practices
+- **Unit tests:** Testes isolados com Mockito
+- **Integration tests:** Testes com banco H2
+- **Test coverage:** Análise de cobertura
+- **TDD approach:** Test-Driven Development
+
+## 🔄 Guias e Documentação
+
+- [📖 Roadmap de Refatoração](REFACTORING_ROADMAP.md) - Planejamento detalhado das melhorias
+- [⚛️ Frontend React](https://github.com/growthfolio/react-gamestore-front) - Interface web separada
+
+## ⚙️ Como Executar
+
+### Pré-requisitos
+- Java 17+
+- Maven 3.8+
+- PostgreSQL 12+ (ou usar Docker)
+
+### Configuração Rápida
+
+1. **Clone o repositório:**
+```bash
+git clone https://github.com/growthfolio/spring-gamestore.git
+cd spring-gamestore
+```
+
+2. **Configure as variáveis de ambiente:**
+```bash
+# Copie o arquivo de exemplo e edite conforme necessário
+cp .env.example .env
+```
+
+3. **Usando Docker (Recomendado):**
+```bash
+# Inicia todos os serviços (backend + PostgreSQL)
+docker-compose up -d
+
+# Verificar logs
+docker-compose logs -f app
+```
+
+4. **Ou executar localmente:**
+```bash
+# Configure PostgreSQL localmente e ajuste application.properties
+./mvnw spring-boot:run
+```
+
+A API estará disponível em `http://localhost:8080`
+
+### 🧪 Executar Testes
+
+```bash
+# Executar todos os testes
+./mvnw test
+
+# Executar testes com coverage
+./mvnw clean test jacoco:report
+
+# Pular testes durante o build
+./mvnw clean install -DskipTests
+```
+
+## 📊 Monitoramento e Logs
+
+Os logs da aplicação são armazenados em:
+- **Console**: Logs em tempo real durante desenvolvimento
+- **Arquivo**: `/logs/spring-gamestore.log` (rotação automática a cada 10MB, mantém 30 dias)
+
+### Níveis de Log
+- **ERROR**: Erros críticos da aplicação
+- **WARN**: Avisos e situações anormais
+- **INFO**: Informações importantes de operação
+- **DEBUG**: Detalhes de debug (apenas em desenvolvimento)
+
+## 🔒 Segurança
+
+### Autenticação JWT
+- **Token válido por**: 1 hora (configurável via `JWT_EXPIRATION`)
+- **Algoritmo**: HS256
+- **Senha**: Hash BCrypt com salt
+
+### Roles e Permissões
+- **USER**: Acesso a endpoints de consulta e operações pessoais
+- **ADMIN**: Acesso completo, incluindo gestão de produtos e categorias
+
+### Endpoints Públicos
+- `POST /usuarios/cadastrar` - Registro de usuário
+- `POST /usuarios/logar` - Login
+- `GET /swagger-ui.html` - Documentação
+
+### Endpoints Protegidos
+Requerem header `Authorization: Bearer {token}`
+
+## 🐳 Docker
+
+### Construir imagem manualmente
+```bash
+docker build -t gamestore-api .
+```
+
+### Executar container
+```bash
+docker run -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/db_lojadegames \
+  -e SPRING_DATASOURCE_USERNAME=root \
+  -e SPRING_DATASOURCE_PASSWORD=root \
+  gamestore-api
+```
+
+### Docker Compose (Recomendado)
+```bash
+# Iniciar todos os serviços
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f app
+
+# Parar serviços
+docker-compose down
+
+# Limpar volumes (CUIDADO: apaga dados do banco)
+docker-compose down -v
+```
+
+## 🔄 Migrations com Flyway
+
+### Estrutura de Migrations
+```
+src/main/resources/db/migration/
+└── V1__initial_schema.sql
+```
+
+### Convenções de Nomenclatura
+- **Versão**: `V{número}__descrição.sql` (ex: `V1__initial_schema.sql`)
+- **Repeatable**: `R__script_repetível.sql`
+
+### Comandos Flyway
+```bash
+# Ver status das migrations
+./mvnw flyway:info
+
+# Executar migrations pendentes
+./mvnw flyway:migrate
+
+# Limpar banco (CUIDADO: apaga tudo)
+./mvnw flyway:clean
+
+# Validar migrations
+./mvnw flyway:validate
+```
+
+## 📈 Qualidade de Código
+
+### SonarQube
+O projeto está integrado com SonarQube para análise de qualidade. Veja `QUICKSTART_SONAR_SYNC.md` para instruções.
+
+### Boas Práticas Implementadas
+- ✅ DTOs para separação de camadas
+- ✅ Service Layer para lógica de negócio
+- ✅ Repository Pattern para acesso a dados
+- ✅ Exception Handling centralizado
+- ✅ Validações com Bean Validation
+- ✅ Logs estruturados
+- ✅ Migrations versionadas
+- ✅ Documentação OpenAPI
+- ✅ Código organizado e coeso
+
+## 🎯 Roadmap de Funcionalidades
+
+### Implementado ✅
+- [x] Sistema de autenticação JWT
+- [x] Gestão de usuários com roles
+- [x] CRUD de categorias
+- [x] CRUD de produtos com filtros
+- [x] Sistema de avaliações (notas e comentários)
+- [x] Lista de favoritos
+- [x] Carrinho de compras
+- [x] Migrations Flyway
+- [x] Docker Compose
+- [x] Documentação Swagger
+
+### Próximas Features 🚀
+- [ ] Processamento de pedidos
+- [ ] Integração com gateway de pagamento
+- [ ] Sistema de cupons de desconto
+- [ ] Notificações por email
+- [ ] Dashboard administrativo
+- [ ] Relatórios de vendas
+- [ ] Sistema de recomendações
+- [ ] Wishlist pública
+- [ ] Testes de integração completos
+
+## 💡 Principais Conceitos Aplicados
+
+### 🏗️ Arquitetura em Camadas
+- **Controller**: Recebe requisições HTTP e retorna respostas
+- **Service**: Contém lógica de negócio e validações
+- **Repository**: Acesso e persistência de dados
+- **Model**: Entidades JPA mapeadas para o banco
+
+### 🛡️ Segurança
+- **JWT**: Autenticação stateless com tokens
+- **BCrypt**: Hash seguro de senhas
+- **CORS**: Controle de acesso de origens cruzadas
+- **HTTPS**: Comunicação segura (configurável para produção)
+
+### 💾 Persistência
+- **JPA/Hibernate**: ORM para mapeamento objeto-relacional
+- **Flyway**: Migrations versionadas
+- **Transactions**: Garantia de consistência (ACID)
+- **Lazy/Eager Loading**: Otimização de queries
+
+### 📊 Performance
+- **Paginação**: Consultas otimizadas com Spring Data
+- **Índices**: Otimização de queries no banco
+- **Caching**: Second-level cache do Hibernate
+- **Connection Pool**: HikariCP para gerenciamento de conexões
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Para contribuir:
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/NovaFuncionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/NovaFuncionalidade`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👨‍💻 Autor
+
+**Energy Games Team**
+
+- GitHub: [@felipemacedo1](https://github.com/felipemacedo1)
+- LinkedIn: [Felipe Macedo](https://linkedin.com/in/felipemacedo1)
+
+## 📞 Suporte
+
+Para dúvidas ou sugestões:
+- Abra uma [issue](https://github.com/felipemacedo1/spring-gamestore/issues)
+- Entre em contato: contato@energygames.com
+
+---
+
+⭐ Se este projeto foi útil para você, considere dar uma estrela!
+
+**Desenvolvido com ❤️ usando Spring Boot**
 - **CORS configuration:** Configuração para frontend
 - **API security:** Proteção de endpoints sensíveis
 
