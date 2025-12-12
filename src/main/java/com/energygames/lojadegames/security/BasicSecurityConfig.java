@@ -59,7 +59,9 @@ public class BasicSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5173"); // Substitua pela URL do front-end
+        configuration.addAllowedOrigin("http://localhost:80");
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedMethod("*"); // Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Permite todos os cabeçalhos
         configuration.setAllowCredentials(true); // Permite envio de cookies e credenciais
