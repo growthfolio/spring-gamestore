@@ -128,9 +128,32 @@ public class IgdbAdminController {
                         );
                     }
                     
-                    // Rating (converter 0-100 para 0-10)
+                    // Rating (manter 0-100)
                     if (game.getTotalRating() != null) {
-                        dto.setRating(game.getTotalRating().doubleValue() / 10.0);
+                        dto.setRating(game.getTotalRating().doubleValue());
+                    }
+
+                    // Capa
+                    if (game.getCover() != null && game.getCover().getUrl() != null) {
+                        String url = game.getCover().getUrl();
+                        if (url.startsWith("//")) {
+                            url = "https:" + url;
+                        }
+                        dto.setUrlCapa(url.replace("t_thumb", "t_cover_big"));
+                    }
+
+                    // Plataformas
+                    if (game.getPlatforms() != null) {
+                        dto.setPlataformas(game.getPlatforms().stream()
+                            .map(p -> p.getName())
+                            .collect(Collectors.toList()));
+                    }
+
+                    // Gêneros
+                    if (game.getGenres() != null) {
+                        dto.setGeneros(game.getGenres().stream()
+                            .map(g -> g.getName())
+                            .collect(Collectors.toList()));
                     }
                     
                     // Verificar se já foi importado

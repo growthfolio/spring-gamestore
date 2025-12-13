@@ -43,7 +43,7 @@ public class IgdbApiClient {
      * @return Dados do jogo ou null se não encontrado
      */
     public IgdbGameDTO getGameById(Long gameId) {
-        String query = String.format("fields *; where id = %d;", gameId);
+        String query = String.format("fields *, cover.*, platforms.*, genres.*; where id = %d;", gameId);
         List<IgdbGameDTO> results = searchGames(query);
         return results.isEmpty() ? null : results.get(0);
     }
@@ -56,7 +56,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> searchGamesByName(String gameName, int limit) {
         String query = String.format(
-            "search \"%s\"; fields *; limit %d;", 
+            "search \"%s\"; fields *, cover.*, platforms.*, genres.*; limit %d;", 
             gameName.replace("\"", "\\\""), 
             Math.min(limit, 500)
         );
@@ -70,7 +70,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> getPopularGames(int limit) {
         String query = String.format(
-            "fields *; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d;",
+            "fields *, cover.*, platforms.*, genres.*; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d;",
             Math.min(limit, 500)
         );
         return searchGames(query);

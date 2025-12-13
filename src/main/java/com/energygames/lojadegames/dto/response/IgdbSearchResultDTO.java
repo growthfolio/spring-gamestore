@@ -15,6 +15,8 @@ public class IgdbSearchResultDTO {
     private String dataLancamento;
     private Double rating;
     private String urlCapa;
+    private java.util.List<String> plataformas;
+    private java.util.List<String> generos;
     private boolean jaImportado;
     private Long produtoIdLocal;
 
@@ -90,5 +92,21 @@ public class IgdbSearchResultDTO {
 
     public void setProdutoIdLocal(Long produtoIdLocal) {
         this.produtoIdLocal = produtoIdLocal;
+    }
+
+    public java.util.List<String> getPlataformas() {
+        return plataformas;
+    }
+
+    public void setPlataformas(java.util.List<String> plataformas) {
+        this.plataformas = plataformas;
+    }
+
+    public java.util.List<String> getGeneros() {
+        return generos;
+    }
+
+    public void setGeneros(java.util.List<String> generos) {
+        this.generos = generos;
     }
 }

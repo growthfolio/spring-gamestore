@@ -42,15 +42,15 @@ public class IgdbGameDTO {
     @JsonProperty("total_rating_count")
     private Integer totalRatingCount;
 
-    private Long cover; // ID da capa (precisa buscar em /covers)
+    private IgdbCoverDTO cover; // Objeto da capa (expandido)
     
     private List<Long> screenshots; // IDs dos screenshots (precisa buscar em /screenshots)
     
     private List<Long> videos; // IDs dos vídeos (precisa buscar em /game_videos)
     
-    private List<Long> platforms; // IDs das plataformas
+    private List<IgdbPlatformDTO> platforms; // Objetos das plataformas (expandido)
     
-    private List<Long> genres; // IDs dos gêneros
+    private List<IgdbGenreDTO> genres; // Objetos dos gêneros (expandido)
     
     @JsonProperty("involved_companies")
     private List<Long> involvedCompanies; // IDs das empresas
@@ -161,11 +161,11 @@ public class IgdbGameDTO {
         this.totalRatingCount = totalRatingCount;
     }
 
-    public Long getCover() {
+    public IgdbCoverDTO getCover() {
         return cover;
     }
 
-    public void setCover(Long cover) {
+    public void setCover(IgdbCoverDTO cover) {
         this.cover = cover;
     }
 
@@ -185,19 +185,19 @@ public class IgdbGameDTO {
         this.videos = videos;
     }
 
-    public List<Long> getPlatforms() {
+    public List<IgdbPlatformDTO> getPlatforms() {
         return platforms;
     }
 
-    public void setPlatforms(List<Long> platforms) {
+    public void setPlatforms(List<IgdbPlatformDTO> platforms) {
         this.platforms = platforms;
     }
 
-    public List<Long> getGenres() {
+    public List<IgdbGenreDTO> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<Long> genres) {
+    public void setGenres(List<IgdbGenreDTO> genres) {
         this.genres = genres;
     }
 
