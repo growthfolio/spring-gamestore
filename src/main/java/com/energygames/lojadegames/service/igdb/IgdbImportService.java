@@ -169,6 +169,16 @@ public class IgdbImportService {
     }
 
     /**
+     * Busca jogos populares na IGDB para listagem (sem importar)
+     * @param limit Limite de resultados
+     * @return Lista de DTOs de jogos populares
+     */
+    public List<IgdbGameDTO> getPopularGamesForImport(int limit) {
+        log.info("Buscando jogos populares na IGDB para listagem (limit: {})", limit);
+        return apiClient.getPopularGames(limit);
+    }
+
+    /**
      * Sincroniza produto existente com dados atualizados da IGDB
      * @param produtoId ID do produto no banco
      * @return Produto atualizado

@@ -102,13 +102,19 @@ public class IgdbAdminController {
     })
     @GetMapping("/search")
     public ResponseEntity<List<IgdbSearchResultDTO>> searchGames(
-        @RequestParam String nome,
+        @RequestParam(required = false) String nome,
         @RequestParam(defaultValue = "10") int limit
     ) {
         log.info("Admin buscando jogos na IGDB: '{}' (limit: {})", nome, limit);
 
         try {
-            List<IgdbGameDTO> games = importService.searchGamesForImport(nome, limit);
+            List<IgdbGameDTO> games;
+            
+            if (nome != null && !nome.trim().isEmpty()) {
+                games = importService.searchGamesForImport(nome, limit);
+            } else {
+                games = importService.getPopularGamesForImport(limit);
+            }
             
             List<IgdbSearchResultDTO> results = games.stream()
                 .map(game -> {
