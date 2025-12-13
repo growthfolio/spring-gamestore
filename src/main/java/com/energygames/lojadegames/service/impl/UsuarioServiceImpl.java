@@ -164,6 +164,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	private String gerarToken(String usuario) {
-		return "Bearer " + jwtService.generateToken(usuario);
+		return jwtService.generateToken(usuario);
 	}
 }
