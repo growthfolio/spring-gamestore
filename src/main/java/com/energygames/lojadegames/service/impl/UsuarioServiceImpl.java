@@ -8,15 +8,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.energygames.lojadegames.dto.mapper.UsuarioMapper;
 import com.energygames.lojadegames.dto.request.LoginRequestDTO;
+import com.energygames.lojadegames.dto.request.SenhaResetDTO;
+import com.energygames.lojadegames.dto.request.SenhaUpdateDTO;
 import com.energygames.lojadegames.dto.request.UsuarioRequestDTO;
 import com.energygames.lojadegames.dto.response.AuthResponseDTO;
 import com.energygames.lojadegames.dto.response.UsuarioResponseDTO;
+import com.energygames.lojadegames.exception.BusinessException;
 import com.energygames.lojadegames.exception.DuplicateResourceException;
 import com.energygames.lojadegames.exception.ResourceNotFoundException;
 import com.energygames.lojadegames.exception.UnauthorizedException;
@@ -34,13 +37,15 @@ public class UsuarioServiceImpl implements UsuarioService {
 	private final UsuarioMapper usuarioMapper;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
+	private final PasswordEncoder passwordEncoder;
 
 	public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper,
-			JwtService jwtService, AuthenticationManager authenticationManager) {
+			JwtService jwtService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
 		this.usuarioRepository = usuarioRepository;
 		this.usuarioMapper = usuarioMapper;
 		this.jwtService = jwtService;
 		this.authenticationManager = authenticationManager;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -132,9 +137,30 @@ public class UsuarioServiceImpl implements UsuarioService {
 		throw new UnauthorizedException("Credenciais inválidas");
 	}
 
+	@Override
+	@Transactional
+	public void alterarSenha(Long id, SenhaUpdateDTO dto) {
+		Usuario usuario = usuarioRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
+
+		if (!passwordEncoder.matches(dto.getSenhaAtual(), usuario.getSenha())) {
+			throw new BusinessException("Senha atual incorreta");
+		}
+
+		usuario.setSenha(passwordEncoder.encode(dto.getNovaSenha()));
+		usuarioRepository.save(usuario);
+		log.info("Senha alterada com sucesso para usuário ID: {}", id);
+	}
+
+	@Override
+	public void recuperarSenha(SenhaResetDTO dto) {
+		log.info("Solicitação de recuperação de senha para email: {}", dto.getEmail());
+		// Simulação de envio de email
+		log.info("Email de recuperação enviado para: {}", dto.getEmail());
+	}
+
 	private String criptografarSenha(String senha) {
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		return encoder.encode(senha);
+		return passwordEncoder.encode(senha);
 	}
 
 	private String gerarToken(String usuario) {

@@ -42,6 +42,7 @@ public class UsuarioMapper {
 		dto.setUsuario(usuario.getUsuario());
 		dto.setFoto(usuario.getFoto());
 		dto.setToken(token);
+		dto.setRoles(usuario.getRoles()); // Frontend pode detectar se é admin verificando se contém ROLE_ADMIN
 		return dto;
 	}
 }

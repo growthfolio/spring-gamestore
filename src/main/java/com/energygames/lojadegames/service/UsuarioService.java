@@ -3,6 +3,8 @@ package com.energygames.lojadegames.service;
 import java.util.List;
 
 import com.energygames.lojadegames.dto.request.LoginRequestDTO;
+import com.energygames.lojadegames.dto.request.SenhaResetDTO;
+import com.energygames.lojadegames.dto.request.SenhaUpdateDTO;
 import com.energygames.lojadegames.dto.request.UsuarioRequestDTO;
 import com.energygames.lojadegames.dto.response.AuthResponseDTO;
 import com.energygames.lojadegames.dto.response.UsuarioResponseDTO;
@@ -18,4 +20,8 @@ public interface UsuarioService {
 	UsuarioResponseDTO atualizar(Long id, UsuarioRequestDTO dto);
 	
 	AuthResponseDTO autenticar(LoginRequestDTO dto);
+
+	void alterarSenha(Long id, SenhaUpdateDTO dto);
+
+	void recuperarSenha(SenhaResetDTO dto);
 }

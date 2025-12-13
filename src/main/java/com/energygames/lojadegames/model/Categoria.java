@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.energygames.lojadegames.enums.TipoCategoriaEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
@@ -21,7 +22,11 @@ public class Categoria {
 
 	@NotNull(message = "Tipo da categoria é obrigatório")
 	@Size(min = 3, max = 50, message = "O tipo deve conter entre 3 e 50 caracteres")
-	private String tipo;
+	private String tipo; // Nome da categoria (ex: Ação, RPG)
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_categoria")
+	private TipoCategoriaEnum tipoCategoria;
 
 	@Size(max = 255, message = "A descrição não pode ultrapassar 255 caracteres")
 	private String descricao;
@@ -140,5 +145,13 @@ public class Categoria {
 
 	public void setIdIgdb(Integer idIgdb) {
 		this.idIgdb = idIgdb;
+	}
+
+	public TipoCategoriaEnum getTipoCategoria() {
+		return tipoCategoria;
+	}
+
+	public void setTipoCategoria(TipoCategoriaEnum tipoCategoria) {
+		this.tipoCategoria = tipoCategoria;
 	}
 }

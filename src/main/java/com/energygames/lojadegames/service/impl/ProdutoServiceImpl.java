@@ -1,7 +1,5 @@
 package com.energygames.lojadegames.service.impl;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -10,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.energygames.lojadegames.dto.mapper.ProdutoMapper;
+import com.energygames.lojadegames.dto.request.ProdutoComercialUpdateDTO;
 import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
 import com.energygames.lojadegames.dto.response.ProdutoResponseDTO;
+import com.energygames.lojadegames.enums.OrigemEnum;
 import com.energygames.lojadegames.exception.BusinessException;
 import com.energygames.lojadegames.exception.ResourceNotFoundException;
 import com.energygames.lojadegames.model.Categoria;
@@ -193,8 +193,10 @@ public class ProdutoServiceImpl implements ProdutoService {
 	public void deletar(Long id) {
 		log.info("Deletando produto ID: {}", id);
 
-		Produto produto = produtoRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
+		// Verifica se produto existe antes de deletar
+		if (!produtoRepository.existsById(id)) {
+			throw new ResourceNotFoundException("Produto não encontrado com ID: " + id);
+		}
 
 		produtoRepository.deleteById(id);
 		log.info("Produto deletado com sucesso. ID: {}", id);
@@ -219,5 +221,49 @@ public class ProdutoServiceImpl implements ProdutoService {
 			java.math.BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
 		java.math.BigDecimal valorDesconto = preco.multiply(percentualDesconto);
 		return preco.subtract(valorDesconto).setScale(2, java.math.RoundingMode.HALF_UP);
+	}
+
+	@Override
+	@Transactional
+	public ProdutoResponseDTO atualizarDadosComerciais(Long id, ProdutoComercialUpdateDTO dto) {
+		log.info("Atualizando dados comerciais do produto ID: {}", id);
+
+		Produto produto = produtoRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
+
+		// Atualizar preço
+		if (dto.getPreco() != null) {
+			produto.setPreco(dto.getPreco());
+		}
+
+		// Atualizar estoque
+		if (dto.getEstoque() != null) {
+			produto.setEstoque(dto.getEstoque());
+		}
+
+		// Atualizar desconto
+		if (dto.getDesconto() != null) {
+			produto.setDesconto(dto.getDesconto());
+		}
+
+		// Atualizar status ativo (permitir ativar produto após definir preço/estoque)
+		if (dto.getAtivo() != null) {
+			produto.setAtivo(dto.getAtivo());
+		}
+
+		Produto produtoAtualizado = produtoRepository.save(produto);
+
+		log.info("Dados comerciais atualizados. Produto ID: {}, Preço: {}, Estoque: {}, Ativo: {}", 
+			id, produtoAtualizado.getPreco(), produtoAtualizado.getEstoque(), produtoAtualizado.getAtivo());
+
+		return produtoMapper.toResponseDTO(produtoAtualizado);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public org.springframework.data.domain.Page<ProdutoResponseDTO> buscarProdutosPendentes(org.springframework.data.domain.Pageable pageable) {
+		log.info("Buscando produtos pendentes de revisão (IGDB + Inativos)");
+		return produtoRepository.findByAtivoFalseAndOrigemExternaOrigem(OrigemEnum.IGDB, pageable)
+				.map(produtoMapper::toResponseDTO);
 	}
 }

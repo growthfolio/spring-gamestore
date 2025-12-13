@@ -25,7 +25,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/carrinho")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Tag(name = "Carrinho", description = "Endpoints para gerenciar carrinho de compras")
 public class CarrinhoController {
 

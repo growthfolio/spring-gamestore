@@ -1,5 +1,9 @@
 package com.energygames.lojadegames.dto.response;
 
+import java.util.Set;
+
+import com.energygames.lojadegames.enums.RoleEnum;
+
 public class AuthResponseDTO {
 
 	private Long id;
@@ -7,6 +11,7 @@ public class AuthResponseDTO {
 	private String usuario;
 	private String foto;
 	private String token;
+	private Set<RoleEnum> roles;
 
 	// Getters e Setters
 	public Long getId() {
@@ -47,5 +52,13 @@ public class AuthResponseDTO {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public Set<RoleEnum> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<RoleEnum> roles) {
+		this.roles = roles;
 	}
 }

@@ -3,6 +3,7 @@ package com.energygames.lojadegames.service.igdb;
 import com.energygames.lojadegames.dto.igdb.*;
 import com.energygames.lojadegames.enums.OrigemEnum;
 import com.energygames.lojadegames.enums.StatusJogoEnum;
+import com.energygames.lojadegames.enums.TipoCategoriaEnum;
 import com.energygames.lojadegames.enums.TipoImagemEnum;
 import com.energygames.lojadegames.enums.TipoVideoEnum;
 import com.energygames.lojadegames.model.*;
@@ -81,11 +82,18 @@ public class IgdbMapperService {
         // Status do jogo
         produto.setStatus(mapIgdbStatusToEnum(gameDTO.getStatus()));
         
-        // Preço padrão (IGDB não fornece preços, definir manualmente depois)
-        produto.setPreco(BigDecimal.ZERO);
+        // Preço e estoque padrão (IGDB não fornece, admin define depois)
+        produto.setPreco(new BigDecimal("59.99")); // Preço padrão para jogos
+        produto.setEstoque(0); // Estoque zerado até admin ajustar
+        produto.setDesconto(BigDecimal.ZERO);
         
-        // Produto inicialmente ativo apenas se lançado
-        produto.setAtivo(produto.getStatus() == StatusJogoEnum.RELEASED);
+        // Campos obrigatórios genéricos (serão atualizados pelo admin se necessário)
+        produto.setPlataforma("Multiplataforma");
+        produto.setDesenvolvedor("A definir");
+        produto.setPublisher("A definir");
+        
+        // Produto inicialmente INATIVO até admin revisar preço/estoque
+        produto.setAtivo(false);
 
         // Origem externa
         ProdutoOrigemExterna origem = new ProdutoOrigemExterna();
@@ -260,6 +268,7 @@ public class IgdbMapperService {
                 categoria.setIdIgdb(idIgdbInt);
                 categoria.setDescricao("Gênero importado da IGDB");
                 categoria.setAtivo(true);
+                categoria.setTipoCategoria(TipoCategoriaEnum.GENERO_IGDB);
                 // Será persistida pelo CascadeType.ALL ou manualmente
                 log.info("Nova categoria '{}' criada a partir de gênero IGDB", genreDTO.getName());
             }

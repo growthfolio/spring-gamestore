@@ -30,6 +30,9 @@ public class BasicSecurityConfig {
 
     @Autowired
     private JwtAuthFilter authFilter;
+    
+    @Autowired
+    private AuthenticationEntryPointImpl authenticationEntryPoint;
 
     @Bean
     UserDetailsService userDetailsService() {
@@ -82,27 +85,42 @@ public class BasicSecurityConfig {
 
     	http
                 .authorizeHttpRequests((auth) -> auth
+                        // Endpoints públicos - Autenticação
                         .requestMatchers("/usuarios/logar").permitAll()
                         .requestMatchers("/usuarios/cadastrar").permitAll()
+                        
+                        // Endpoints públicos - Documentação e Erros
                         .requestMatchers("/error/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-resources/**").permitAll()
-                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+                        
+                        // Produtos e Categorias - GET público, modificações só ADMIN
                         .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/categorias/**").hasRole("ADMIN")
+                        
+                        // Endpoints de ADMIN
+                        .requestMatchers("/igdb/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/all").hasRole("ADMIN")
+                        
+                        // Endpoints que requerem autenticação (qualquer usuário logado)
+                        .requestMatchers("/carrinho/**", "/favoritos/**", "/avaliacoes/**").authenticated()
+                        .requestMatchers("/usuarios/atualizar/**", "/usuarios/{id}").authenticated()
+                        
+                        // CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        
+                        // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint))
                 .authenticationProvider(authenticationProvider())
-	        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-	        .httpBasic(withDefaults());
+	        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 

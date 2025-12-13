@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.energygames.lojadegames.dto.request.LoginRequestDTO;
+import com.energygames.lojadegames.dto.request.SenhaResetDTO;
+import com.energygames.lojadegames.dto.request.SenhaUpdateDTO;
 import com.energygames.lojadegames.dto.request.UsuarioRequestDTO;
 import com.energygames.lojadegames.dto.response.AuthResponseDTO;
 import com.energygames.lojadegames.dto.response.UsuarioResponseDTO;
@@ -23,7 +26,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/usuarios")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UsuarioController {
 
 	private final UsuarioService usuarioService;
@@ -56,5 +58,17 @@ public class UsuarioController {
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
 		return ResponseEntity.ok(usuarioService.atualizar(id, dto));
+	}
+
+	@PatchMapping("/{id}/senha")
+	public ResponseEntity<Void> alterarSenha(@PathVariable Long id, @Valid @RequestBody SenhaUpdateDTO dto) {
+		usuarioService.alterarSenha(id, dto);
+		return ResponseEntity.noContent().build();
+	}
+
+	@PostMapping("/recuperar-senha")
+	public ResponseEntity<Void> recuperarSenha(@Valid @RequestBody SenhaResetDTO dto) {
+		usuarioService.recuperarSenha(dto);
+		return ResponseEntity.noContent().build();
 	}
 }

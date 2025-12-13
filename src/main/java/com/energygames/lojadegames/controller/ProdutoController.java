@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,15 +20,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.energygames.lojadegames.dto.request.ProdutoComercialUpdateDTO;
 import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
 import com.energygames.lojadegames.dto.response.ProdutoResponseDTO;
 import com.energygames.lojadegames.service.ProdutoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/produtos")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@Tag(name = "Produtos", description = "Endpoints de gerenciamento de produtos/jogos")
 public class ProdutoController {
 
 	private final ProdutoService produtoService;
@@ -80,5 +86,15 @@ public class ProdutoController {
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
 		produtoService.deletar(id);
+	}
+
+	@Operation(summary = "Atualizar dados comerciais (Admin)", description = "Atualiza preço, estoque e status de um produto importado da IGDB")
+	@SecurityRequirement(name = "bearer-key")
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping("/{id}/comercial")
+	public ResponseEntity<ProdutoResponseDTO> atualizarDadosComerciais(
+			@PathVariable Long id,
+			@Valid @RequestBody ProdutoComercialUpdateDTO dto) {
+		return ResponseEntity.ok(produtoService.atualizarDadosComerciais(id, dto));
 	}
 }

@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/favoritos")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Tag(name = "Favoritos", description = "Endpoints para gerenciar lista de favoritos do usuário")
 public class FavoritoController {
 

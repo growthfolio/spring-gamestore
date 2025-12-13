@@ -100,11 +100,13 @@ public class IgdbImportService {
         Produto produto = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, videos, platforms, genres);
 
         // Persiste categorias novas primeiro (se necessário)
-        for (Categoria categoria : produto.getGeneros()) {
-            if (categoria.getId() == null) {
-                categoriaRepository.save(categoria);
-                log.debug("Categoria '{}' persistida", categoria.getTipo());
-            }
+        List<Categoria> novasCategorias = produto.getGeneros().stream()
+            .filter(c -> c.getId() == null)
+            .toList();
+            
+        if (!novasCategorias.isEmpty()) {
+            categoriaRepository.saveAll(novasCategorias);
+            log.debug("{} novas categorias persistidas", novasCategorias.size());
         }
 
         // Persiste produto (cascade persiste imagens, vídeos e origem)
