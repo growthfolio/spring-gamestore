@@ -62,7 +62,7 @@ public class IgdbMapperService {
         // Campos básicos
         produto.setNome(gameDTO.getName());
         produto.setSlug(gameDTO.getSlug());
-        produto.setDescricao(truncate(gameDTO.getSummary(), 500)); // Limite do banco
+        produto.setDescricao(truncate(gameDTO.getSummary(), 2000)); // Limite aumentado para textos IGDB
         produto.setDescricaoCompleta(gameDTO.getStoryline() != null ? gameDTO.getStoryline() : gameDTO.getSummary());
         
         // Data de lançamento

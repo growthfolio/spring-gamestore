@@ -34,13 +34,15 @@ public class Produto {
 
 	@NotBlank(message = "O nome do produto é obrigatório!")
 	@Size(min = 2, max = 100, message = "O nome deve conter entre 2 e 100 caracteres.")
+	@Column(length = 100)
 	private String nome;
 
 	@Column(unique = true, length = 100)
 	private String slug; // URL amigável gerada automaticamente
 
 	@NotNull(message = "A descrição do produto é obrigatória.")
-	@Size(max = 500, message = "A descrição não pode ultrapassar 500 caracteres.")
+	@Size(max = 2000, message = "A descrição não pode ultrapassar 2000 caracteres.")
+	@Column(length = 2000)
 	private String descricao; // Descrição curta (summary)
 
 	@Column(columnDefinition = "TEXT")

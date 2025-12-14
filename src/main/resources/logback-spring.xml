@@ -41,18 +41,18 @@
 	</appender>
 
 	<!-- Logger da aplicação -->
-	<logger name="com.energygames.lojadegames" level="DEBUG" additivity="false">
+	<logger name="com.energygames.lojadegames" level="INFO" additivity="false">
 		<appender-ref ref="CONSOLE" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR_FILE" />
 	</logger>
 
 	<!-- Logger do Spring Framework -->
-	<logger name="org.springframework" level="INFO" />
+	<logger name="org.springframework" level="WARN" />
 	
-	<!-- Logger do Hibernate -->
-	<logger name="org.hibernate.SQL" level="DEBUG" />
-	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+	<!-- Logger do Hibernate - desabilitado para reduzir verbosidade -->
+	<logger name="org.hibernate.SQL" level="WARN" />
+	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN" />
 
 	<!-- Root Logger -->
 	<root level="INFO">
