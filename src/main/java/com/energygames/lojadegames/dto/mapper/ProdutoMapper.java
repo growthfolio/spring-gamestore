@@ -1,6 +1,9 @@
 package com.energygames.lojadegames.dto.mapper;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -8,6 +11,7 @@ import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
 import com.energygames.lojadegames.dto.response.ProdutoResponseDTO;
 import com.energygames.lojadegames.model.Categoria;
 import com.energygames.lojadegames.model.Produto;
+import com.energygames.lojadegames.model.ProdutoImagem;
 import com.energygames.lojadegames.model.Usuario;
 
 @Component
@@ -59,7 +63,9 @@ public class ProdutoMapper {
 		dto.setDesenvolvedor(produto.getDesenvolvedor());
 		dto.setPublisher(produto.getPublisher());
 		dto.setDataLancamento(produto.getDataLancamento());
-		dto.setImagens(produto.getImagens());
+		
+		// Prioriza imagens estruturadas (IGDB) sobre imagens simples
+		dto.setImagens(extrairUrlsImagens(produto));
 		dto.setAtivo(produto.getAtivo());
 
 		if (produto.getCategoria() != null) {
@@ -67,6 +73,23 @@ public class ProdutoMapper {
 		}
 
 		return dto;
+	}
+
+	/**
+	 * Extrai URLs das imagens, priorizando imagens estruturadas (IGDB)
+	 * Se não houver estruturadas, usa o campo simples de imagens
+	 */
+	private List<String> extrairUrlsImagens(Produto produto) {
+		// Prioriza imagens estruturadas (vindas da IGDB)
+		if (produto.getImagensEstruturadas() != null && !produto.getImagensEstruturadas().isEmpty()) {
+			return produto.getImagensEstruturadas().stream()
+				.sorted(Comparator.comparing(ProdutoImagem::getOrdem, Comparator.nullsLast(Comparator.naturalOrder())))
+				.map(ProdutoImagem::getUrl)
+				.collect(Collectors.toList());
+		}
+		
+		// Fallback para campo simples de imagens
+		return produto.getImagens();
 	}
 
 	private BigDecimal calcularPrecoComDesconto(BigDecimal preco, BigDecimal desconto) {
