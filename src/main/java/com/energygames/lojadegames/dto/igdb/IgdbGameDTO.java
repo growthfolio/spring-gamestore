@@ -58,10 +58,10 @@ public class IgdbGameDTO {
     private Integer status; // Status: 0=Released, 2=Alpha, 3=Beta, 4=Early Access, 5=Offline, 6=Cancelled, 7=Rumored, 8=Delisted
 
     @JsonProperty("external_games")
-    private List<IgdbExternalGameDTO> externalGames; // Links externos (Steam, Epic, etc)
+    private List<Long> externalGames; // IDs dos links externos (Steam, Epic, etc)
 
     @JsonProperty("websites")
-    private List<IgdbWebsiteDTO> websites; // Sites oficiais
+    private List<Long> websites; // IDs dos sites oficiais
 
     // Getters e Setters
 
@@ -217,19 +217,19 @@ public class IgdbGameDTO {
         this.status = status;
     }
 
-    public List<IgdbExternalGameDTO> getExternalGames() {
+    public List<Long> getExternalGames() {
         return externalGames;
     }
 
-    public void setExternalGames(List<IgdbExternalGameDTO> externalGames) {
+    public void setExternalGames(List<Long> externalGames) {
         this.externalGames = externalGames;
     }
 
-    public List<IgdbWebsiteDTO> getWebsites() {
+    public List<Long> getWebsites() {
         return websites;
     }
 
-    public void setWebsites(List<IgdbWebsiteDTO> websites) {
+    public void setWebsites(List<Long> websites) {
         this.websites = websites;
     }
 }

@@ -76,9 +76,7 @@ public class IgdbImportService {
         }
 
         // Busca dados relacionados
-        IgdbCoverDTO coverDTO = gameDTO.getCover() != null 
-            ? apiClient.getCoverById(gameDTO.getCover()) 
-            : null;
+        IgdbCoverDTO coverDTO = gameDTO.getCover();
 
         List<IgdbScreenshotDTO> screenshots = gameDTO.getScreenshots() != null 
             ? apiClient.getScreenshotsByIds(gameDTO.getScreenshots()) 
@@ -89,11 +87,11 @@ public class IgdbImportService {
             : List.of();
 
         List<IgdbPlatformDTO> platforms = gameDTO.getPlatforms() != null 
-            ? apiClient.getPlatformsByIds(gameDTO.getPlatforms()) 
+            ? gameDTO.getPlatforms()
             : List.of();
 
         List<IgdbGenreDTO> genres = gameDTO.getGenres() != null 
-            ? apiClient.getGenresByIds(gameDTO.getGenres()) 
+            ? gameDTO.getGenres()
             : List.of();
 
         // Mapeia para Produto
@@ -119,28 +117,33 @@ public class IgdbImportService {
     /**
      * Busca jogos por nome na IGDB e retorna lista de candidatos para importação
      * @param gameName Nome do jogo para buscar
+     * @param page Página atual (1-based)
      * @param limit Limite de resultados
      * @return Lista de DTOs de jogos encontrados
      */
-    public List<IgdbGameDTO> searchGamesForImport(String gameName, int limit) {
-        log.info("Buscando jogos na IGDB com nome: '{}'", gameName);
+    public List<IgdbGameDTO> searchGamesForImport(String gameName, int page, int limit) {
+        int offset = Math.max(0, (page - 1) * limit);
+        log.info("Buscando jogos na IGDB: '{}' (Pagina: {}, Offset: {})", gameName, page, offset);
         
-        List<IgdbGameDTO> results = apiClient.searchGamesByName(gameName, limit);
+        List<IgdbGameDTO> results = apiClient.searchGamesByName(gameName, limit, offset);
         
         log.info("Encontrados {} jogos na IGDB para '{}'", results.size(), gameName);
         return results;
     }
 
     /**
-     * Importa jogos populares da IGDB
-     * @param quantity Quantidade de jogos a importar
-     * @return Lista de produtos importados
+     * Importa jogos populares da IGDB (Método legado para compatibilidade ou uso interno)
      */
     @Transactional
     public List<Produto> importPopularGames(int quantity) {
-        log.info("Importando {} jogos populares da IGDB", quantity);
+        return importPopularGames(quantity, 0); // Offset 0
+    }
 
-        List<IgdbGameDTO> popularGames = apiClient.getPopularGames(quantity);
+    @Transactional
+    public List<Produto> importPopularGames(int quantity, int offset) {
+        log.info("Importando {} jogos populares da IGDB (offset: {})", quantity, offset);
+
+        List<IgdbGameDTO> popularGames = apiClient.getPopularGames(quantity, offset);
         
         return popularGames.stream()
             .map(game -> {
@@ -170,12 +173,14 @@ public class IgdbImportService {
 
     /**
      * Busca jogos populares na IGDB para listagem (sem importar)
+     * @param page Página atual (1-based)
      * @param limit Limite de resultados
      * @return Lista de DTOs de jogos populares
      */
-    public List<IgdbGameDTO> getPopularGamesForImport(int limit) {
-        log.info("Buscando jogos populares na IGDB para listagem (limit: {})", limit);
-        return apiClient.getPopularGames(limit);
+    public List<IgdbGameDTO> getPopularGamesForImport(int page, int limit) {
+        int offset = Math.max(0, (page - 1) * limit);
+        log.info("Buscando jogos populares na IGDB (Pagina: {}, Offset: {})", page, offset);
+        return apiClient.getPopularGames(limit, offset);
     }
 
     /**
@@ -213,9 +218,7 @@ public class IgdbImportService {
         }
 
         // Busca dados relacionados
-        IgdbCoverDTO coverDTO = gameDTO.getCover() != null 
-            ? apiClient.getCoverById(gameDTO.getCover()) 
-            : null;
+        IgdbCoverDTO coverDTO = gameDTO.getCover();
 
         List<IgdbScreenshotDTO> screenshots = gameDTO.getScreenshots() != null 
             ? apiClient.getScreenshotsByIds(gameDTO.getScreenshots()) 
@@ -226,11 +229,11 @@ public class IgdbImportService {
             : List.of();
 
         List<IgdbPlatformDTO> platforms = gameDTO.getPlatforms() != null 
-            ? apiClient.getPlatformsByIds(gameDTO.getPlatforms()) 
+            ? gameDTO.getPlatforms()
             : List.of();
 
         List<IgdbGenreDTO> genres = gameDTO.getGenres() != null 
-            ? apiClient.getGenresByIds(gameDTO.getGenres()) 
+            ? gameDTO.getGenres()
             : List.of();
 
         // Atualiza produto (preserva campos não gerenciados pela IGDB como preço)

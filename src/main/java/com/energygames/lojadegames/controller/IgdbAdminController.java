@@ -103,17 +103,18 @@ public class IgdbAdminController {
     @GetMapping("/search")
     public ResponseEntity<List<IgdbSearchResultDTO>> searchGames(
         @RequestParam(required = false) String nome,
-        @RequestParam(defaultValue = "10") int limit
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "20") int limit
     ) {
-        log.info("Admin buscando jogos na IGDB: '{}' (limit: {})", nome, limit);
+        log.info("Admin buscando jogos na IGDB: '{}' (Pagina: {}, Limit: {})", nome, page, limit);
 
         try {
             List<IgdbGameDTO> games;
             
             if (nome != null && !nome.trim().isEmpty()) {
-                games = importService.searchGamesForImport(nome, limit);
+                games = importService.searchGamesForImport(nome, page, limit);
             } else {
-                games = importService.getPopularGamesForImport(limit);
+                games = importService.getPopularGamesForImport(page, limit);
             }
             
             List<IgdbSearchResultDTO> results = games.stream()
@@ -181,7 +182,10 @@ public class IgdbAdminController {
 
         } catch (Exception e) {
             log.error("Erro ao buscar jogos na IGDB: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // Retorna o erro no corpo para facilitar o debug
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("X-Error-Message", e.getMessage())
+                .body(List.of()); // Retorna lista vazia ou poderia retornar um DTO de erro se a assinatura permitisse
         }
     }
 

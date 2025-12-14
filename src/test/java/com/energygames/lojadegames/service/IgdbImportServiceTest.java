@@ -136,18 +136,18 @@ class IgdbImportServiceTest {
         game2.setId(2L);
         game2.setName("Zelda TOTK");
         
-        when(apiClient.searchGamesByName("zelda", 10))
+        when(apiClient.searchGamesByName("zelda", 10, 0))
             .thenReturn(List.of(game1, game2));
 
         // Act
-        List<IgdbGameDTO> resultado = importService.searchGamesForImport("zelda", 10);
+        List<IgdbGameDTO> resultado = importService.searchGamesForImport("zelda", 1, 10);
 
         // Assert
         assertThat(resultado).hasSize(2);
         assertThat(resultado.get(0).getName()).isEqualTo("Zelda BOTW");
         assertThat(resultado.get(1).getName()).isEqualTo("Zelda TOTK");
         
-        verify(apiClient).searchGamesByName("zelda", 10);
+        verify(apiClient).searchGamesByName("zelda", 10, 0);
     }
 
     @Test
@@ -165,7 +165,7 @@ class IgdbImportServiceTest {
         ProdutoOrigemExterna origemExistente = new ProdutoOrigemExterna();
         origemExistente.setProduto(produto);
 
-        when(apiClient.getPopularGames(20)).thenReturn(List.of(game1, game2));
+        when(apiClient.getPopularGames(20, 0)).thenReturn(List.of(game1, game2));
         
         // game1 não existe, game2 já existe
         when(origemExternaRepository.findByOrigemAndIdExterno(OrigemEnum.IGDB, "1"))

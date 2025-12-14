@@ -49,29 +49,33 @@ public class IgdbApiClient {
     }
 
     /**
-     * Busca jogos na IGDB por nome
+     * Busca jogos na IGDB por nome com paginação
      * @param gameName Nome do jogo para buscar
      * @param limit Limite de resultados (máx: 500)
+     * @param offset Quantidade de registros para pular
      * @return Lista de jogos encontrados
      */
-    public List<IgdbGameDTO> searchGamesByName(String gameName, int limit) {
+    public List<IgdbGameDTO> searchGamesByName(String gameName, int limit, int offset) {
         String query = String.format(
-            "search \"%s\"; fields *, cover.*, platforms.*, genres.*; limit %d;", 
+            "search \"%s\"; fields *, cover.*, platforms.*, genres.*; limit %d; offset %d;", 
             gameName.replace("\"", "\\\""), 
-            Math.min(limit, 500)
+            Math.min(limit, 500),
+            offset
         );
         return searchGames(query);
     }
 
     /**
-     * Busca jogos populares na IGDB
+     * Busca jogos populares na IGDB com paginação
      * @param limit Limite de resultados
+     * @param offset Quantidade de registros para pular
      * @return Lista de jogos populares
      */
-    public List<IgdbGameDTO> getPopularGames(int limit) {
+    public List<IgdbGameDTO> getPopularGames(int limit, int offset) {
         String query = String.format(
-            "fields *, cover.*, platforms.*, genres.*; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d;",
-            Math.min(limit, 500)
+            "fields *, cover.*, platforms.*, genres.*; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d; offset %d;",
+            Math.min(limit, 500),
+            offset
         );
         return searchGames(query);
     }
@@ -136,6 +140,8 @@ public class IgdbApiClient {
      * @return Lista de plataformas
      */
     public List<IgdbPlatformDTO> getPlatformsByIds(List<Long> platformIds) {
+        // Método mantido para compatibilidade, mas não usado na importação principal
+        // pois os dados já vêm expandidos
         if (platformIds == null || platformIds.isEmpty()) return List.of();
         
         String ids = platformIds.stream()

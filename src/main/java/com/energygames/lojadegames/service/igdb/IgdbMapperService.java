@@ -191,30 +191,17 @@ public class IgdbMapperService {
 
     /**
      * Mapeia links externos (Steam, Epic, etc)
+     * Nota: Por ora, external_games e websites retornam apenas IDs da IGDB
+     * Para obter URLs, seria necessário fazer chamadas adicionais à API
+     * Deixando como placeholder para implementação futura
      */
     private void mapExternalLinks(Produto produto, IgdbGameDTO gameDTO) {
         Map<String, String> links = new HashMap<>();
 
-        // External games (Steam, GOG, Epic, etc)
-        if (gameDTO.getExternalGames() != null) {
-            for (IgdbExternalGameDTO external : gameDTO.getExternalGames()) {
-                String platform = mapExternalGameCategory(external.getCategory());
-                if (platform != null && external.getUrl() != null) {
-                    links.put(platform, external.getUrl());
-                }
-            }
-        }
-
-        // Websites oficiais
-        if (gameDTO.getWebsites() != null) {
-            for (IgdbWebsiteDTO website : gameDTO.getWebsites()) {
-                String category = mapWebsiteCategory(website.getCategory());
-                if (category != null && website.getUrl() != null) {
-                    links.put(category, website.getUrl());
-                }
-            }
-        }
-
+        // TODO: Implementar busca de external_games e websites por ID se necessário
+        // Por enquanto, os campos retornam apenas IDs (List<Long>)
+        // A IGDB só retorna objetos completos se expandirmos na query
+        
         produto.setLinksExternos(links);
         log.debug("{} links externos adicionados", links.size());
     }

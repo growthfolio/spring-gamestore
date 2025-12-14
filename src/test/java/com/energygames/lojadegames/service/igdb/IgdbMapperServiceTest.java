@@ -323,29 +323,20 @@ class IgdbMapperServiceTest {
     @Test
     @DisplayName("Deve mapear links externos (websites e external games)")
     void deveMapearLinksExternos() {
-        // Arrange
-        IgdbExternalGameDTO steamLink = new IgdbExternalGameDTO();
-        steamLink.setId(1L);
-        steamLink.setCategory(1); // Steam
-        steamLink.setUrl("https://store.steampowered.com/app/123");
-        gameDTO.setExternalGames(List.of(steamLink));
-
-        IgdbWebsiteDTO officialSite = new IgdbWebsiteDTO();
-        officialSite.setId(2L);
-        officialSite.setCategory(1); // Site Oficial
-        officialSite.setUrl("https://zelda.com");
-        gameDTO.setWebsites(List.of(officialSite));
+        // Arrange - external_games e websites agora são List<Long> (apenas IDs)
+        // O mapeamento de links externos foi simplificado pois a API retorna apenas IDs
+        gameDTO.setExternalGames(List.of(1L, 2L));
+        gameDTO.setWebsites(List.of(3L, 4L));
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
             gameDTO, null, null, null, null, null
         );
 
-        // Assert
+        // Assert - Por enquanto, links externos ficam vazios já que a API retorna apenas IDs
         assertNotNull(produto.getLinksExternos());
-        assertEquals(2, produto.getLinksExternos().size());
-        assertEquals("https://store.steampowered.com/app/123", produto.getLinksExternos().get("Steam"));
-        assertEquals("https://zelda.com", produto.getLinksExternos().get("Site Oficial"));
+        // Links vazios pois não há chamadas adicionais para buscar os detalhes
+        assertEquals(0, produto.getLinksExternos().size());
     }
 
     @Test

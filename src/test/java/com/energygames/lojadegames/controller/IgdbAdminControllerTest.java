@@ -132,20 +132,20 @@ class IgdbAdminControllerTest {
     @DisplayName("GET /admin/igdb/search - Deve buscar jogos por termo")
     void deveBuscarJogosPorTermo() throws Exception {
         // Arrange
-        when(importService.searchGamesForImport("zelda", 10))
+        when(importService.searchGamesForImport("zelda", 1, 10))
             .thenReturn(List.of(gameDTO));
 
         // Act & Assert
         mockMvc.perform(get("/admin/igdb/search")
-                .param("gameName", "zelda")
+                .param("nome", "zelda")
                 .param("limit", "10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(1234))
-                .andExpect(jsonPath("$[0].name").value("The Legend of Zelda: Breath of the Wild"));
+                .andExpect(jsonPath("$[0].igdbId").value(1234))
+                .andExpect(jsonPath("$[0].nome").value("The Legend of Zelda: Breath of the Wild"));
 
-        verify(importService).searchGamesForImport("zelda", 10);
+        verify(importService).searchGamesForImport("zelda", 1, 10);
     }
 
     @Test
