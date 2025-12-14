@@ -2,6 +2,9 @@ package com.energygames.lojadegames.controller;
 
 import com.energygames.lojadegames.configuration.IgdbConfigProperties;
 import com.energygames.lojadegames.dto.igdb.IgdbGameDTO;
+import com.energygames.lojadegames.dto.igdb.IgdbGenreDTO;
+import com.energygames.lojadegames.model.Categoria;
+import com.energygames.lojadegames.repository.CategoriaRepository;
 import com.energygames.lojadegames.dto.response.IgdbImportStatusDTO;
 import com.energygames.lojadegames.dto.response.IgdbSearchResultDTO;
 import com.energygames.lojadegames.dto.response.IgdbSyncStatsDTO;
@@ -51,6 +54,7 @@ public class IgdbAdminController {
     private final IgdbConfigProperties config;
     private final ProdutoRepository produtoRepository;
     private final ProdutoOrigemExternaRepository origemExternaRepository;
+    private final CategoriaRepository categoriaRepository;
     private final com.energygames.lojadegames.scheduler.IgdbSyncScheduler syncScheduler;
 
     public IgdbAdminController(
@@ -59,6 +63,7 @@ public class IgdbAdminController {
         IgdbConfigProperties config,
         ProdutoRepository produtoRepository,
         ProdutoOrigemExternaRepository origemExternaRepository,
+        CategoriaRepository categoriaRepository,
         com.energygames.lojadegames.scheduler.IgdbSyncScheduler syncScheduler
     ) {
         this.importService = importService;
@@ -66,6 +71,7 @@ public class IgdbAdminController {
         this.config = config;
         this.produtoRepository = produtoRepository;
         this.origemExternaRepository = origemExternaRepository;
+        this.categoriaRepository = categoriaRepository;
         this.syncScheduler = syncScheduler;
     }
 
@@ -429,5 +435,95 @@ public class IgdbAdminController {
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(stats);
         }
+    }
+
+    @Operation(summary = "Importar todos os gêneros da IGDB como categorias", 
+               description = "Busca todos os gêneros disponíveis na IGDB e cria categorias correspondentes no banco de dados. " +
+                            "Gêneros já existentes (por idIgdb) são ignorados.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Gêneros importados com sucesso"),
+        @ApiResponse(responseCode = "500", description = "Erro na importação")
+    })
+    @PostMapping("/import/genres")
+    public ResponseEntity<?> importAllGenres() {
+        log.info("Admin requisitou importação de todos os gêneros da IGDB");
+
+        try {
+            List<IgdbGenreDTO> genres = apiClient.getAllGenres();
+            
+            int criados = 0;
+            int existentes = 0;
+            
+            for (IgdbGenreDTO genre : genres) {
+                // Verifica se já existe categoria com este idIgdb
+                Optional<Categoria> existente = categoriaRepository.findByIdIgdb(genre.getId().intValue());
+                
+                if (existente.isPresent()) {
+                    existentes++;
+                    log.debug("Gênero já existe como categoria: {} (IGDB ID: {})", genre.getName(), genre.getId());
+                    continue;
+                }
+                
+                // Cria nova categoria
+                Categoria categoria = new Categoria();
+                categoria.setTipo(genre.getName());
+                categoria.setSlug(genre.getSlug());
+                categoria.setIdIgdb(genre.getId().intValue());
+                categoria.setDescricao("Gênero importado da IGDB");
+                categoria.setAtivo(true);
+                categoria.setIcone(getIconeParaGenero(genre.getSlug()));
+                
+                categoriaRepository.save(categoria);
+                criados++;
+                log.info("Categoria criada: {} (IGDB ID: {})", genre.getName(), genre.getId());
+            }
+            
+            return ResponseEntity.ok(java.util.Map.of(
+                "mensagem", "Importação de gêneros concluída",
+                "totalEncontrados", genres.size(),
+                "criados", criados,
+                "jaExistentes", existentes
+            ));
+            
+        } catch (Exception e) {
+            log.error("Erro ao importar gêneros da IGDB", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(java.util.Map.of("erro", "Erro ao importar gêneros: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Retorna um ícone sugerido para cada gênero com base no slug
+     */
+    private String getIconeParaGenero(String slug) {
+        if (slug == null) return "🎮";
+        
+        return switch (slug) {
+            case "action", "shooter" -> "🔫";
+            case "adventure" -> "🗺️";
+            case "rpg", "role-playing-rpg" -> "⚔️";
+            case "strategy" -> "♟️";
+            case "puzzle" -> "🧩";
+            case "racing" -> "🏎️";
+            case "sport", "sports" -> "⚽";
+            case "fighting" -> "🥊";
+            case "simulation" -> "🛩️";
+            case "platform", "platformer" -> "🍄";
+            case "arcade" -> "👾";
+            case "horror" -> "👻";
+            case "music", "rhythm" -> "🎵";
+            case "indie" -> "🎨";
+            case "card-board-game" -> "🃏";
+            case "moba" -> "🏰";
+            case "tactical" -> "🎯";
+            case "turn-based-strategy-tbs" -> "🎲";
+            case "real-time-strategy-rts" -> "⏱️";
+            case "hack-and-slash-beat-em-up" -> "🗡️";
+            case "point-and-click" -> "👆";
+            case "visual-novel" -> "📖";
+            case "quiz-trivia" -> "❓";
+            case "pinball" -> "🎱";
+            default -> "🎮";
+        };
     }
 }

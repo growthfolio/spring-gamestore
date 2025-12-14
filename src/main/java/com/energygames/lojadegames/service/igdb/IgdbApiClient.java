@@ -171,6 +171,17 @@ public class IgdbApiClient {
     }
 
     /**
+     * Busca TODOS os gêneros disponíveis na IGDB
+     * A IGDB tem cerca de 25 gêneros no total
+     * @return Lista completa de gêneros
+     */
+    public List<IgdbGenreDTO> getAllGenres() {
+        String query = "fields id, name, slug; limit 100; sort name asc;";
+        log.info("Buscando todos os gêneros da IGDB");
+        return executeQuery("/genres", query, new ParameterizedTypeReference<List<IgdbGenreDTO>>() {});
+    }
+
+    /**
      * Executa query genérica em qualquer endpoint da IGDB
      * @param endpoint Endpoint da API (ex: /games, /covers)
      * @param query Query no formato Apicalypse
