@@ -1,8 +1,20 @@
 -- Script de migração completa para tabela tb_usuarios
 -- Migra campo 'nome' para 'nickname' e garante integridade dos dados
 
--- 1. Adicionar coluna nickname se não existir
-ALTER TABLE tb_usuarios ADD COLUMN IF NOT EXISTS nickname VARCHAR(255);
+-- 1. Verificar se a coluna nickname existe, se não, criar
+SET @col_exists = 0;
+SELECT COUNT(*) INTO @col_exists 
+FROM information_schema.columns 
+WHERE table_schema = DATABASE() 
+AND table_name = 'tb_usuarios' 
+AND column_name = 'nickname';
+
+SET @sql = IF(@col_exists = 0, 
+    'ALTER TABLE tb_usuarios ADD COLUMN nickname VARCHAR(255)', 
+    'SELECT "Coluna nickname já existe"');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 2. Migrar dados de nome para nickname (apenas onde nickname está vazio)
 UPDATE tb_usuarios 
@@ -17,8 +29,11 @@ WHERE EXISTS (
     WHERE u2.nickname = u1.nickname AND u2.id != u1.id
 );
 
--- 4. Tornar nickname NOT NULL
-ALTER TABLE tb_usuarios MODIFY COLUMN nickname VARCHAR(255) NOT NULL;
+-- 4. Tornar nickname NOT NULL se ainda não for
+SET @sql = 'ALTER TABLE tb_usuarios MODIFY COLUMN nickname VARCHAR(255) NOT NULL';
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 5. Verificar e corrigir emails inválidos (opcional)
 UPDATE tb_usuarios 
@@ -32,9 +47,6 @@ WHERE EXISTS (
     SELECT 1 FROM tb_usuarios u2 
     WHERE u2.email = u1.email AND u2.id != u1.id
 );
-
--- 7. (OPCIONAL) Remover coluna nome após confirmar funcionamento
--- ALTER TABLE tb_usuarios DROP COLUMN IF EXISTS nome;
 
 -- Verificação final
 SELECT 
