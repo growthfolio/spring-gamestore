@@ -284,6 +284,49 @@ public class IgdbImportService {
     }
 
     /**
+     * Importa múltiplos jogos em lote por seus IDs da IGDB
+     * @param igdbIds Lista de IDs dos jogos na IGDB
+     * @return Lista de produtos importados (pode conter nulls para falhas)
+     */
+    @Transactional
+    public List<Produto> importGamesBatch(List<Long> igdbIds) {
+        log.info("Iniciando importação em lote de {} jogos", igdbIds.size());
+
+        return igdbIds.stream()
+            .map(igdbId -> {
+                try {
+                    // Verifica se já foi importado
+                    Optional<ProdutoOrigemExterna> existing = origemExternaRepository.findByOrigemAndIdExterno(
+                        OrigemEnum.IGDB, 
+                        igdbId.toString()
+                    );
+
+                    if (existing.isPresent()) {
+                        log.debug("Jogo IGDB ID {} já importado, retornando existente", igdbId);
+                        return existing.get().getProduto();
+                    }
+
+                    return importGameById(igdbId);
+                    
+                } catch (Exception e) {
+                    log.error("Erro ao importar jogo IGDB ID {}: {}", igdbId, e.getMessage());
+                    return null; // Retorna null para falhas
+                }
+            })
+            .toList();
+    }
+
+    /**
+     * Busca detalhes completos de um jogo para preview
+     * @param igdbId ID do jogo na IGDB
+     * @return DTO do jogo ou null se não encontrado
+     */
+    public IgdbGameDTO getGameDetails(Long igdbId) {
+        log.info("Buscando detalhes do jogo IGDB ID: {}", igdbId);
+        return apiClient.getGameById(igdbId);
+    }
+
+    /**
      * Verifica status da integração IGDB
      * @return true se API está acessível
      */

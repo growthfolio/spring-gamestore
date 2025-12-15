@@ -3,6 +3,9 @@ package com.energygames.lojadegames.controller;
 import com.energygames.lojadegames.configuration.IgdbConfigProperties;
 import com.energygames.lojadegames.dto.igdb.IgdbGameDTO;
 import com.energygames.lojadegames.dto.igdb.IgdbGenreDTO;
+import com.energygames.lojadegames.dto.request.IgdbBatchImportRequestDTO;
+import com.energygames.lojadegames.dto.response.IgdbBatchImportResponseDTO;
+import com.energygames.lojadegames.dto.response.IgdbGamePreviewDTO;
 import com.energygames.lojadegames.model.Categoria;
 import com.energygames.lojadegames.repository.CategoriaRepository;
 import com.energygames.lojadegames.dto.response.IgdbImportStatusDTO;
@@ -15,6 +18,7 @@ import com.energygames.lojadegames.repository.ProdutoOrigemExternaRepository;
 import com.energygames.lojadegames.repository.ProdutoRepository;
 import com.energygames.lojadegames.service.igdb.IgdbApiClient;
 import com.energygames.lojadegames.service.igdb.IgdbImportService;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -101,7 +105,179 @@ public class IgdbAdminController {
         }
     }
 
-    @Operation(summary = "Buscar jogos na IGDB", description = "Busca jogos por nome na IGDB e retorna candidatos para importação")
+    @Operation(summary = "Importar jogos em lote", description = "Importa múltiplos jogos da IGDB em uma única requisição. Fornece feedback visual detalhado do progresso.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lote processado (pode conter sucessos e falhas)"),
+        @ApiResponse(responseCode = "400", description = "Lista de IDs inválida")
+    })
+    @PostMapping("/import/batch")
+    public ResponseEntity<IgdbBatchImportResponseDTO> importGamesBatch(
+        @Valid @RequestBody IgdbBatchImportRequestDTO request
+    ) {
+        log.info("Admin requisitou importação em lote de {} jogos", request.getIgdbIds().size());
+
+        IgdbBatchImportResponseDTO response = new IgdbBatchImportResponseDTO();
+        response.setTotalSolicitado(request.getIgdbIds().size());
+
+        try {
+            List<Produto> produtos = importService.importGamesBatch(request.getIgdbIds());
+            
+            // Processar resultados
+            for (int i = 0; i < produtos.size(); i++) {
+                Produto produto = produtos.get(i);
+                Long igdbId = request.getIgdbIds().get(i);
+                
+                IgdbImportStatusDTO status;
+                if (produto != null) {
+                    // Verificar se já existia ou foi importado agora
+                    Optional<ProdutoOrigemExterna> origem = origemExternaRepository
+                        .findByOrigemAndIdExterno(OrigemEnum.IGDB, igdbId.toString());
+                    
+                    boolean jaExistia = origem.isPresent() && 
+                        origem.get().getDataImportacao().isBefore(LocalDateTime.now().minusSeconds(10));
+                    
+                    if (jaExistia) {
+                        status = IgdbImportStatusDTO.jaImportado(produto.getId(), produto.getNome());
+                        response.setJaImportados(response.getJaImportados() + 1);
+                    } else {
+                        status = IgdbImportStatusDTO.sucesso(produto.getId(), produto.getNome(), igdbId);
+                        response.setSucessos(response.getSucessos() + 1);
+                    }
+                } else {
+                    status = IgdbImportStatusDTO.erro("Falha ao importar IGDB ID: " + igdbId);
+                    response.setFalhas(response.getFalhas() + 1);
+                }
+                
+                response.getResultados().add(status);
+            }
+            
+            response.setTotalProcessado(produtos.size());
+            response.calcularStatus();
+            
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao processar importação em lote", e);
+            response.setTotalProcessado(0);
+            response.setFalhas(request.getIgdbIds().size());
+            response.setStatus("ERRO");
+            response.setMensagemResumo("Erro ao processar lote: " + e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @Operation(summary = "Preview detalhado de jogo", description = "Obtém informações completas de um jogo da IGDB para visualização rápida sem importar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Detalhes obtidos com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Jogo não encontrado"),
+        @ApiResponse(responseCode = "500", description = "Erro ao buscar detalhes")
+    })
+    @GetMapping("/preview/{igdbId}")
+    public ResponseEntity<IgdbGamePreviewDTO> getGamePreview(@PathVariable Long igdbId) {
+        log.info("Admin requisitou preview do jogo IGDB ID: {}", igdbId);
+
+        try {
+            IgdbGameDTO game = importService.getGameDetails(igdbId);
+            
+            if (game == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            IgdbGamePreviewDTO preview = new IgdbGamePreviewDTO();
+            preview.setIgdbId(game.getId());
+            preview.setNome(game.getName());
+            preview.setSlug(game.getSlug());
+            preview.setDescricao(game.getSummary());
+            preview.setStoryline(game.getStoryline());
+
+            // Data de lançamento
+            if (game.getFirstReleaseDate() != null) {
+                preview.setDataLancamento(
+                    Instant.ofEpochSecond(game.getFirstReleaseDate())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toString()
+                );
+            }
+
+            // Rating
+            if (game.getTotalRating() != null) {
+                preview.setRating(game.getTotalRating().doubleValue());
+            }
+            if (game.getTotalRatingCount() != null) {
+                preview.setRatingCount(game.getTotalRatingCount().intValue());
+            }
+
+            // Capa
+            if (game.getCover() != null && game.getCover().getUrl() != null) {
+                String url = game.getCover().getUrl();
+                if (url.startsWith("//")) {
+                    url = "https:" + url;
+                }
+                preview.setUrlCapa(url.replace("t_thumb", "t_cover_big"));
+            }
+
+            // Screenshots
+            if (game.getScreenshots() != null && !game.getScreenshots().isEmpty()) {
+                List<String> screenshotUrls = apiClient.getScreenshotsByIds(game.getScreenshots())
+                    .stream()
+                    .map(s -> {
+                        String url = s.getUrl();
+                        if (url != null && url.startsWith("//")) {
+                            url = "https:" + url;
+                        }
+                        return url != null ? url.replace("t_thumb", "t_screenshot_big") : null;
+                    })
+                    .filter(url -> url != null)
+                    .collect(Collectors.toList());
+                preview.setScreenshots(screenshotUrls);
+            }
+
+            // Vídeos
+            if (game.getVideos() != null && !game.getVideos().isEmpty()) {
+                List<String> videoIds = apiClient.getVideosByIds(game.getVideos())
+                    .stream()
+                    .map(v -> v.getVideoId())
+                    .filter(id -> id != null)
+                    .collect(Collectors.toList());
+                preview.setVideos(videoIds);
+            }
+
+            // Plataformas
+            if (game.getPlatforms() != null) {
+                preview.setPlataformas(game.getPlatforms().stream()
+                    .map(p -> p.getName())
+                    .collect(Collectors.toList()));
+            }
+
+            // Gêneros
+            if (game.getGenres() != null) {
+                preview.setGeneros(game.getGenres().stream()
+                    .map(g -> g.getName())
+                    .collect(Collectors.toList()));
+            }
+
+            // Verificar se já foi importado
+            Optional<ProdutoOrigemExterna> existing = origemExternaRepository
+                .findByOrigemAndIdExterno(OrigemEnum.IGDB, game.getId().toString());
+            
+            if (existing.isPresent()) {
+                preview.setJaImportado(true);
+                preview.setProdutoIdLocal(existing.get().getProduto().getId());
+            } else {
+                preview.setJaImportado(false);
+            }
+
+            return ResponseEntity.ok(preview);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar preview do jogo IGDB ID {}", igdbId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Buscar jogos na IGDB", description = "Busca jogos por nome na IGDB e retorna candidatos para importação com suporte a ordenação")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso"),
         @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
@@ -110,9 +286,12 @@ public class IgdbAdminController {
     public ResponseEntity<List<IgdbSearchResultDTO>> searchGames(
         @RequestParam(required = false) String nome,
         @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "20") int limit
+        @RequestParam(defaultValue = "20") int limit,
+        @RequestParam(defaultValue = "rating") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        log.info("Admin buscando jogos na IGDB: '{}' (Pagina: {}, Limit: {})", nome, page, limit);
+        log.info("Admin buscando jogos na IGDB: '{}' (Pagina: {}, Limit: {}, Sort: {} {})", 
+            nome, page, limit, sortBy, sortDir);
 
         try {
             List<IgdbGameDTO> games;
@@ -184,15 +363,60 @@ public class IgdbAdminController {
                 })
                 .collect(Collectors.toList());
 
+            // Aplicar ordenação local nos resultados
+            results = sortSearchResults(results, sortBy, sortDir);
+
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
             log.error("Erro ao buscar jogos na IGDB: {}", e.getMessage(), e);
-            // Retorna o erro no corpo para facilitar o debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("X-Error-Message", e.getMessage())
-                .body(List.of()); // Retorna lista vazia ou poderia retornar um DTO de erro se a assinatura permitisse
+                .body(List.of());
         }
+    }
+
+    /**
+     * Ordena os resultados de busca conforme critério especificado
+     */
+    private List<IgdbSearchResultDTO> sortSearchResults(List<IgdbSearchResultDTO> results, String sortBy, String sortDir) {
+        boolean ascending = "asc".equalsIgnoreCase(sortDir);
+        
+        return results.stream()
+            .sorted((a, b) -> {
+                int comparison = 0;
+                
+                switch (sortBy.toLowerCase()) {
+                    case "nome":
+                        comparison = compareNullSafe(a.getNome(), b.getNome());
+                        break;
+                    case "rating":
+                        comparison = compareNullSafe(b.getRating(), a.getRating()); // Desc by default for rating
+                        break;
+                    case "datalancamento":
+                        comparison = compareNullSafe(a.getDataLancamento(), b.getDataLancamento());
+                        break;
+                    case "importado":
+                        comparison = Boolean.compare(a.isJaImportado(), b.isJaImportado());
+                        break;
+                    default:
+                        // Default: rating descendente
+                        comparison = compareNullSafe(b.getRating(), a.getRating());
+                }
+                
+                return ascending ? comparison : -comparison;
+            })
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Compara valores tratando nulls (nulls sempre por último)
+     */
+    private <T extends Comparable<T>> int compareNullSafe(T a, T b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return a.compareTo(b);
     }
 
     @Operation(summary = "Importar jogos populares", description = "Importa jogos populares da IGDB em lote")
