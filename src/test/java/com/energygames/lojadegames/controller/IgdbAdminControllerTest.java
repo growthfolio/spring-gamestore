@@ -60,6 +60,9 @@ class IgdbAdminControllerTest {
     @MockBean
     private com.energygames.lojadegames.scheduler.IgdbSyncScheduler syncScheduler;
 
+    @MockBean
+    private com.energygames.lojadegames.repository.CategoriaRepository categoriaRepository;
+
     private Produto produto;
     private IgdbGameDTO gameDTO;
 
@@ -202,5 +205,205 @@ class IgdbAdminControllerTest {
                 .andExpect(jsonPath("$.mensagem").value("Cache de autenticação limpo"));
 
         verify(authService).clearTokenCache();
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /admin/igdb/import/batch - Deve importar múltiplos jogos em lote")
+    void deveImportarJogosEmLote() throws Exception {
+        // Arrange
+        Produto produto2 = new Produto();
+        produto2.setId(2L);
+        produto2.setNome("Mario Kart 8");
+        
+        when(importService.importGamesBatch(List.of(1234L, 5678L)))
+            .thenReturn(List.of(produto, produto2));
+
+        String requestBody = """
+            {
+                "igdbIds": [1234, 5678]
+            }
+            """;
+
+        // Act & Assert
+        mockMvc.perform(post("/admin/igdb/import/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSolicitado").value(2))
+                .andExpect(jsonPath("$.totalProcessado").value(2))
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.resultados", hasSize(2)));
+
+        verify(importService).importGamesBatch(List.of(1234L, 5678L));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /admin/igdb/import/batch - Deve retornar erro 400 com lista vazia")
+    void deveRetornarErro400ComListaVazia() throws Exception {
+        // Arrange
+        String requestBody = """
+            {
+                "igdbIds": []
+            }
+            """;
+
+        // Act & Assert
+        mockMvc.perform(post("/admin/igdb/import/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /admin/igdb/import/batch - Deve processar lote com falhas parciais")
+    void deveProcessarLoteComFalhasParciais() throws Exception {
+        // Arrange
+        when(importService.importGamesBatch(List.of(1234L, 9999L)))
+            .thenReturn(List.of(produto, null)); // null indica falha
+
+        String requestBody = """
+            {
+                "igdbIds": [1234, 9999]
+            }
+            """;
+
+        // Act & Assert
+        mockMvc.perform(post("/admin/igdb/import/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSolicitado").value(2))
+                .andExpect(jsonPath("$.totalProcessado").value(2))
+                .andExpect(jsonPath("$.sucessos").value(greaterThanOrEqualTo(0)))
+                .andExpect(jsonPath("$.falhas").value(greaterThanOrEqualTo(0)))
+                .andExpect(jsonPath("$.status").value(anyOf(is("PARCIAL"), is("CONCLUIDO"))));
+
+        verify(importService).importGamesBatch(List.of(1234L, 9999L));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/igdb/preview/{id} - Deve retornar preview detalhado do jogo")
+    void deveRetornarPreviewDetalhadoDoJogo() throws Exception {
+        // Arrange
+        gameDTO.setSummary("Uma aventura épica em mundo aberto");
+        gameDTO.setStoryline("Link desperta após 100 anos...");
+        
+        when(importService.getGameDetails(1234L)).thenReturn(gameDTO);
+
+        // Act & Assert
+        mockMvc.perform(get("/admin/igdb/preview/{id}", 1234L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.igdbId").value(1234))
+                .andExpect(jsonPath("$.nome").value("The Legend of Zelda: Breath of the Wild"))
+                .andExpect(jsonPath("$.descricao").value("Uma aventura épica em mundo aberto"))
+                .andExpect(jsonPath("$.storyline").value("Link desperta após 100 anos..."));
+
+        verify(importService).getGameDetails(1234L);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/igdb/preview/{id} - Deve retornar 404 quando jogo não encontrado")
+    void deveRetornar404QuandoJogoNaoEncontradoNoPreview() throws Exception {
+        // Arrange
+        when(importService.getGameDetails(9999L)).thenReturn(null);
+
+        // Act & Assert
+        mockMvc.perform(get("/admin/igdb/preview/{id}", 9999L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(importService).getGameDetails(9999L);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/igdb/search - Deve buscar jogos com ordenação por rating descendente")
+    void deveBuscarJogosComOrdenacaoPorRating() throws Exception {
+        // Arrange
+        IgdbGameDTO game1 = new IgdbGameDTO();
+        game1.setId(1L);
+        game1.setName("Game A");
+        
+        IgdbGameDTO game2 = new IgdbGameDTO();
+        game2.setId(2L);
+        game2.setName("Game B");
+        
+        when(importService.searchGamesForImport("test", 1, 10))
+            .thenReturn(List.of(game1, game2));
+
+        // Act & Assert
+        mockMvc.perform(get("/admin/igdb/search")
+                .param("nome", "test")
+                .param("sortBy", "rating")
+                .param("sortDir", "desc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        verify(importService).searchGamesForImport("test", 1, 10);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/igdb/search - Deve buscar jogos com ordenação por nome ascendente")
+    void deveBuscarJogosComOrdenacaoPorNome() throws Exception {
+        // Arrange
+        IgdbGameDTO game1 = new IgdbGameDTO();
+        game1.setId(1L);
+        game1.setName("Zelda");
+        
+        IgdbGameDTO game2 = new IgdbGameDTO();
+        game2.setId(2L);
+        game2.setName("Mario");
+        
+        when(importService.searchGamesForImport("game", 1, 10))
+            .thenReturn(List.of(game1, game2));
+
+        // Act & Assert
+        mockMvc.perform(get("/admin/igdb/search")
+                .param("nome", "game")
+                .param("sortBy", "nome")
+                .param("sortDir", "asc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].nome").value("Mario")) // Mario vem antes de Zelda
+                .andExpect(jsonPath("$[1].nome").value("Zelda"));
+
+        verify(importService).searchGamesForImport("game", 1, 10);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/igdb/search - Deve buscar jogos com ordenação por status de importação")
+    void deveBuscarJogosComOrdenacaoPorStatusImportacao() throws Exception {
+        // Arrange
+        IgdbGameDTO game1 = new IgdbGameDTO();
+        game1.setId(1L);
+        game1.setName("Importado");
+        
+        IgdbGameDTO game2 = new IgdbGameDTO();
+        game2.setId(2L);
+        game2.setName("Não Importado");
+        
+        when(importService.searchGamesForImport("test", 1, 10))
+            .thenReturn(List.of(game1, game2));
+
+        // Act & Assert
+        mockMvc.perform(get("/admin/igdb/search")
+                .param("nome", "test")
+                .param("sortBy", "importado")
+                .param("sortDir", "asc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        verify(importService).searchGamesForImport("test", 1, 10);
     }
 }
