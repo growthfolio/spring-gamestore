@@ -7,18 +7,17 @@ public class LoginRequestDTO {
 
 	@NotBlank(message = "Email é obrigatório")
 	@Email(message = "Email deve ser válido")
-	private String usuario;
+	private String email;
 
 	@NotBlank(message = "Senha é obrigatória")
 	private String senha;
 
-	// Getters e Setters
-	public String getUsuario() {
-		return usuario;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getSenha() {

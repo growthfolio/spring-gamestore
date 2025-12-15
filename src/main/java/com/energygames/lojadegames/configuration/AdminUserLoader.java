@@ -32,12 +32,12 @@ public class AdminUserLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         String adminEmail = "admin@energygames.com";
         
-        if (usuarioRepository.findByUsuario(adminEmail).isEmpty()) {
+        if (usuarioRepository.findByEmail(adminEmail).isEmpty()) {
             log.info("Usuário admin não encontrado. Criando usuário admin padrão...");
             
             Usuario admin = new Usuario();
-            admin.setNome("Administrador");
-            admin.setUsuario(adminEmail);
+            admin.setNickname("Admin");
+            admin.setEmail(adminEmail);
             admin.setSenha(passwordEncoder.encode("admin123"));
             admin.setFoto("https://i.imgur.com/Sk5SjWE.jpeg"); // Foto placeholder
             

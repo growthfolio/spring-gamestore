@@ -50,7 +50,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public PedidoResponseDTO criarPedido() {
         Usuario usuario = obterUsuarioAutenticado();
-        log.info("Iniciando criação de pedido para usuário: {}", usuario.getUsuario());
+        log.info("Iniciando criação de pedido para usuário: {}", usuario.getEmail());
 
         List<CarrinhoItem> itensCarrinho = carrinhoRepository.findAllByUsuarioId(usuario.getId());
 
@@ -141,7 +141,7 @@ public class PedidoServiceImpl implements PedidoService {
     private Usuario obterUsuarioAutenticado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return usuarioRepository.findByUsuario(email)
+        return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 

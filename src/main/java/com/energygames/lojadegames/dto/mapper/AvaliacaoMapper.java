@@ -29,7 +29,7 @@ public class AvaliacaoMapper {
 		dto.setProdutoId(avaliacao.getProduto().getId());
 		dto.setProdutoNome(avaliacao.getProduto().getNome());
 		dto.setUsuarioId(avaliacao.getUsuario().getId());
-		dto.setUsuarioNome(avaliacao.getUsuario().getNome());
+		dto.setUsuarioNome(avaliacao.getUsuario().getNickname());
 		return dto;
 	}
 

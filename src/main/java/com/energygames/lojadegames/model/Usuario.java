@@ -35,13 +35,13 @@ public class Usuario {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotNull(message = "O Atributo Nome é Obrigatório!")
-	private String nome;
+	@NotNull(message = "O Atributo Nickname é Obrigatório!")
+	private String nickname;
 	
 	@Schema(example = "email@email.com.br")
-	@NotNull(message = "O Atributo Usuário é Obrigatório!")
-	@Email(message = "O Atributo Usuário deve ser um email válido!")
-	private String usuario;
+	@NotNull(message = "O Atributo Email é Obrigatório!")
+	@Email(message = "O Atributo Email deve ser um email válido!")
+	private String email;
 
 	@NotBlank(message = "O Atributo Senha é Obrigatório!")
 	@Size(min = 8, message = "A Senha deve ter no mínimo 8 caracteres")
@@ -70,20 +70,20 @@ public class Usuario {
 		this.id = id;
 	}
 
-	public String getNome() {
-		return this.nome;
+	public String getNickname() {
+		return this.nickname;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
-	public String getUsuario() {
-		return this.usuario;
+	public String getEmail() {
+		return this.email;
 	}
 
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getSenha() {

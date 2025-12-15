@@ -3,8 +3,8 @@ package com.energygames.lojadegames.model;
 public class UsuarioLogin {
 	
 	private Long id;
-	private String nome;
-	private String usuario;
+	private String nickname;
+	private String email;
 	private String senha;
 	private String foto;
 	private String token;
@@ -17,20 +17,20 @@ public class UsuarioLogin {
 		this.id = id;
 	}
 
-	public String getNome() {
-		return this.nome;
+	public String getNickname() {
+		return this.nickname;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
-	public String getUsuario() {
-		return this.usuario;
+	public String getEmail() {
+		return this.email;
 	}
 
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getSenha() {

@@ -12,16 +12,16 @@ public class UsuarioMapper {
 
 	public Usuario toEntity(UsuarioRequestDTO dto) {
 		Usuario usuario = new Usuario();
-		usuario.setNome(dto.getNome());
-		usuario.setUsuario(dto.getUsuario());
+		usuario.setNickname(dto.getNickname());
+		usuario.setEmail(dto.getEmail());
 		usuario.setSenha(dto.getSenha());
 		usuario.setFoto(dto.getFoto());
 		return usuario;
 	}
 
 	public void updateEntity(UsuarioRequestDTO dto, Usuario usuario) {
-		usuario.setNome(dto.getNome());
-		usuario.setUsuario(dto.getUsuario());
+		usuario.setNickname(dto.getNickname());
+		usuario.setEmail(dto.getEmail());
 		usuario.setSenha(dto.getSenha());
 		usuario.setFoto(dto.getFoto());
 	}
@@ -29,8 +29,8 @@ public class UsuarioMapper {
 	public UsuarioResponseDTO toResponseDTO(Usuario usuario) {
 		UsuarioResponseDTO dto = new UsuarioResponseDTO();
 		dto.setId(usuario.getId());
-		dto.setNome(usuario.getNome());
-		dto.setUsuario(usuario.getUsuario());
+		dto.setNickname(usuario.getNickname());
+		dto.setEmail(usuario.getEmail());
 		dto.setFoto(usuario.getFoto());
 		return dto;
 	}
@@ -38,11 +38,11 @@ public class UsuarioMapper {
 	public AuthResponseDTO toAuthResponseDTO(Usuario usuario, String token) {
 		AuthResponseDTO dto = new AuthResponseDTO();
 		dto.setId(usuario.getId());
-		dto.setNome(usuario.getNome());
-		dto.setUsuario(usuario.getUsuario());
+		dto.setNickname(usuario.getNickname());
+		dto.setEmail(usuario.getEmail());
 		dto.setFoto(usuario.getFoto());
 		dto.setToken(token);
-		dto.setRoles(usuario.getRoles()); // Frontend pode detectar se é admin verificando se contém ROLE_ADMIN
+		dto.setRoles(usuario.getRoles());
 		return dto;
 	}
 }

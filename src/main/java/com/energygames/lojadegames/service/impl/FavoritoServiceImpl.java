@@ -121,7 +121,7 @@ public class FavoritoServiceImpl implements FavoritoService {
 		}
 
 		String email = authentication.getName();
-		return usuarioRepository.findByUsuario(email)
+		return usuarioRepository.findByEmail(email)
 				.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + email));
 	}
 }

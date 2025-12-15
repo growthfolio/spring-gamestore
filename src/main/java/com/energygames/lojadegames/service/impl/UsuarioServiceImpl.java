@@ -69,16 +69,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	@Transactional
 	public UsuarioResponseDTO cadastrar(UsuarioRequestDTO dto) {
-		log.info("Cadastrando novo usuário: {}", dto.getUsuario());
+		log.info("Cadastrando novo usuário: {}", dto.getEmail());
 
-		if (usuarioRepository.findByUsuario(dto.getUsuario()).isPresent()) {
-			throw new DuplicateResourceException("Email já cadastrado: " + dto.getUsuario());
+		if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
+			throw new DuplicateResourceException("Email já cadastrado: " + dto.getEmail());
 		}
 
 		Usuario usuario = usuarioMapper.toEntity(dto);
 		usuario.setSenha(criptografarSenha(usuario.getSenha()));
-		
-		// Adicionar role padrão
 		usuario.getRoles().add(com.energygames.lojadegames.enums.RoleEnum.ROLE_USER);
 
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
@@ -95,10 +93,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 		Usuario usuario = usuarioRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
 
-		// Verificar se email já existe para outro usuário
-		usuarioRepository.findByUsuario(dto.getUsuario()).ifPresent(usuarioExistente -> {
+		usuarioRepository.findByEmail(dto.getEmail()).ifPresent(usuarioExistente -> {
 			if (!usuarioExistente.getId().equals(id)) {
-				throw new DuplicateResourceException("Email já cadastrado: " + dto.getUsuario());
+				throw new DuplicateResourceException("Email já cadastrado: " + dto.getEmail());
 			}
 		});
 
@@ -114,23 +111,23 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	@Transactional
 	public AuthResponseDTO autenticar(LoginRequestDTO dto) {
-		log.info("Autenticando usuário: {}", dto.getUsuario());
+		log.info("Autenticando usuário: {}", dto.getEmail());
 
 		try {
-			var credenciais = new UsernamePasswordAuthenticationToken(dto.getUsuario(), dto.getSenha());
+			var credenciais = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha());
 			Authentication authentication = authenticationManager.authenticate(credenciais);
 
 			if (authentication.isAuthenticated()) {
-				Usuario usuario = usuarioRepository.findByUsuario(dto.getUsuario())
-						.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.getUsuario()));
+				Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+						.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.getEmail()));
 
-				String token = gerarToken(dto.getUsuario());
+				String token = gerarToken(dto.getEmail());
 
-				log.info("Usuário autenticado com sucesso: {}", dto.getUsuario());
+				log.info("Usuário autenticado com sucesso: {}", dto.getEmail());
 				return usuarioMapper.toAuthResponseDTO(usuario, token);
 			}
 		} catch (Exception e) {
-			log.warn("Falha na autenticação para usuário: {}", dto.getUsuario());
+			log.warn("Falha na autenticação para usuário: {}", dto.getEmail());
 			throw new UnauthorizedException("Credenciais inválidas");
 		}
 
@@ -155,7 +152,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	public void recuperarSenha(SenhaResetDTO dto) {
 		log.info("Solicitação de recuperação de senha para email: {}", dto.getEmail());
-		// Simulação de envio de email
 		log.info("Email de recuperação enviado para: {}", dto.getEmail());
 	}
 
@@ -163,7 +159,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 		return passwordEncoder.encode(senha);
 	}
 
-	private String gerarToken(String usuario) {
-		return jwtService.generateToken(usuario);
+	private String gerarToken(String email) {
+		return jwtService.generateToken(email);
 	}
 }

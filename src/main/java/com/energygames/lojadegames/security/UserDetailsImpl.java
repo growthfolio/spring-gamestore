@@ -19,7 +19,7 @@ public class UserDetailsImpl implements UserDetails {
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public UserDetailsImpl(Usuario user) {
-		this.userName = user.getUsuario();
+		this.userName = user.getEmail();
 		this.password = user.getSenha();
 		this.authorities = user.getRoles().stream()
 				.map(role -> new SimpleGrantedAuthority(role.name()))
