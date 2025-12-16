@@ -24,4 +24,7 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
 	Long contarAvaliacoesPorProduto(@Param("produtoId") Long produtoId);
 
 	List<Avaliacao> findTop5ByProdutoIdOrderByDataAvaliacaoDesc(Long produtoId);
+	
+	@Query("SELECT COUNT(a) FROM Avaliacao a WHERE a.usuario.id = :usuarioId")
+	int contarAvaliacoesPorUsuario(@Param("usuarioId") Long usuarioId);
 }

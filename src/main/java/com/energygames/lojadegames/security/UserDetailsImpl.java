@@ -9,16 +9,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.energygames.lojadegames.model.Usuario;
 
-
 public class UserDetailsImpl implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 
+	private Long id;
 	private String userName;
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public UserDetailsImpl(Usuario user) {
+		this.id = user.getId();
 		this.userName = user.getEmail();
 		this.password = user.getSenha();
 		this.authorities = user.getRoles().stream()
@@ -26,7 +27,11 @@ public class UserDetailsImpl implements UserDetails {
 				.collect(Collectors.toList());
 	}
 
-	public UserDetailsImpl() {	}
+	public UserDetailsImpl() {}
+
+	public Long getId() {
+		return id;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -35,13 +40,11 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public String getPassword() {
-
 		return password;
 	}
 
 	@Override
 	public String getUsername() {
-
 		return userName;
 	}
 
@@ -64,5 +67,4 @@ public class UserDetailsImpl implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-
 }
