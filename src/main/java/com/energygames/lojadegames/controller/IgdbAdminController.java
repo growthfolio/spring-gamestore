@@ -61,6 +61,9 @@ public class IgdbAdminController {
     private final CategoriaRepository categoriaRepository;
     private final com.energygames.lojadegames.scheduler.IgdbSyncScheduler syncScheduler;
 
+    // Threshold to determine if a game was just imported (seconds)
+    private static final int RECENT_IMPORT_THRESHOLD_SECONDS = 10;
+
     public IgdbAdminController(
         IgdbImportService importService,
         IgdbApiClient apiClient,
@@ -134,7 +137,9 @@ public class IgdbAdminController {
                         .findByOrigemAndIdExterno(OrigemEnum.IGDB, igdbId.toString());
                     
                     boolean jaExistia = origem.isPresent() && 
-                        origem.get().getDataImportacao().isBefore(LocalDateTime.now().minusSeconds(10));
+                        origem.get().getDataImportacao().isBefore(
+                            LocalDateTime.now().minusSeconds(RECENT_IMPORT_THRESHOLD_SECONDS)
+                        );
                     
                     if (jaExistia) {
                         status = IgdbImportStatusDTO.jaImportado(produto.getId(), produto.getNome());
@@ -391,7 +396,8 @@ public class IgdbAdminController {
                         comparison = compareNullSafe(a.getNome(), b.getNome());
                         break;
                     case "rating":
-                        comparison = compareNullSafe(b.getRating(), a.getRating()); // Desc by default for rating
+                        // For rating, natural order is descending (higher is better)
+                        comparison = compareNullSafe(a.getRating(), b.getRating());
                         break;
                     case "datalancamento":
                         comparison = compareNullSafe(a.getDataLancamento(), b.getDataLancamento());
@@ -400,10 +406,11 @@ public class IgdbAdminController {
                         comparison = Boolean.compare(a.isJaImportado(), b.isJaImportado());
                         break;
                     default:
-                        // Default: rating descendente
-                        comparison = compareNullSafe(b.getRating(), a.getRating());
+                        // Default: rating
+                        comparison = compareNullSafe(a.getRating(), b.getRating());
                 }
                 
+                // Apply sort direction
                 return ascending ? comparison : -comparison;
             })
             .collect(Collectors.toList());

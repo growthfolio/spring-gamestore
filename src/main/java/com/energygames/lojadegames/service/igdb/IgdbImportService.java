@@ -286,7 +286,7 @@ public class IgdbImportService {
     /**
      * Importa múltiplos jogos em lote por seus IDs da IGDB
      * @param igdbIds Lista de IDs dos jogos na IGDB
-     * @return Lista de produtos importados (pode conter nulls para falhas)
+     * @return Lista de produtos importados (pode conter nulls para falhas indicadas)
      */
     @Transactional
     public List<Produto> importGamesBatch(List<Long> igdbIds) {
@@ -310,7 +310,8 @@ public class IgdbImportService {
                     
                 } catch (Exception e) {
                     log.error("Erro ao importar jogo IGDB ID {}: {}", igdbId, e.getMessage());
-                    return null; // Retorna null para falhas
+                    // Return null to indicate failure - caller must handle null values
+                    return null;
                 }
             })
             .toList();
