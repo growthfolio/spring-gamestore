@@ -140,10 +140,11 @@ public class IgdbMapperService {
             capa.setOrdem(ordem++);
             capa.setLargura(coverDTO.getWidth());
             capa.setAltura(coverDTO.getHeight());
-            capa.setIdIgdb(coverDTO.getId().toString());
+            // IMPORTANTE: Usar imageId (hash) para geração dinâmica de URLs, não o ID do registro
+            capa.setIdIgdb(coverDTO.getImageId());
             imagens.add(capa);
 
-            log.debug("Capa adicionada: {}", capa.getUrl());
+            log.debug("Capa adicionada: {} (imageId: {})", capa.getUrl(), coverDTO.getImageId());
         }
 
         // Screenshots
@@ -157,7 +158,8 @@ public class IgdbMapperService {
                 img.setOrdem(ordem++);
                 img.setLargura(screenshot.getWidth());
                 img.setAltura(screenshot.getHeight());
-                img.setIdIgdb(screenshot.getId().toString());
+                // IMPORTANTE: Usar imageId (hash) para geração dinâmica de URLs, não o ID do registro
+                img.setIdIgdb(screenshot.getImageId());
                 imagens.add(img);
             }
             log.debug("{} screenshots adicionados", screenshots.size());
