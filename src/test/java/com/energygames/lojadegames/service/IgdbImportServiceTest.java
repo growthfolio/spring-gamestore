@@ -71,7 +71,7 @@ class IgdbImportServiceTest {
         when(origemExternaRepository.findByOrigemAndIdExterno(OrigemEnum.IGDB, "1234"))
             .thenReturn(Optional.empty());
         when(apiClient.getGameById(1234L)).thenReturn(gameDTO);
-        when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any()))
+        when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(produto);
         when(produtoRepository.save(any(Produto.class))).thenReturn(produto);
 
@@ -178,7 +178,7 @@ class IgdbImportServiceTest {
         novoProduto.setNome("Game 1");
         
         when(apiClient.getGameById(1L)).thenReturn(game1);
-        when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any()))
+        when(mapperService.mapGameToProduct(any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(novoProduto);
         when(produtoRepository.save(any())).thenReturn(novoProduto);
 

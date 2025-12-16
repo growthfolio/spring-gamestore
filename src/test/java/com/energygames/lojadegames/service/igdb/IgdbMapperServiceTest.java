@@ -115,7 +115,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, coverDTO, screenshots, videos, platforms, genres
+            gameDTO, coverDTO, screenshots, null, videos, platforms, genres
         );
 
         // Assert
@@ -137,7 +137,7 @@ class IgdbMapperServiceTest {
 
         // Status
         assertEquals(StatusJogoEnum.RELEASED, produto.getStatus());
-        assertTrue(produto.getAtivo()); // Released = ativo
+        assertFalse(produto.getAtivo()); // Inativo até admin revisar preço/estoque
 
         // Origem externa
         assertNotNull(produto.getOrigemExterna());
@@ -154,7 +154,7 @@ class IgdbMapperServiceTest {
     void deveMapearImagensCorretamente() {
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, coverDTO, screenshots, videos, null, null
+            gameDTO, coverDTO, screenshots, null, videos, null, null
         );
 
         // Assert
@@ -171,7 +171,7 @@ class IgdbMapperServiceTest {
         assertEquals("https://images.igdb.com/igdb/image/upload/t_cover_big/co1234.jpg", capa.get().getUrl());
         assertEquals(264, capa.get().getLargura());
         assertEquals(374, capa.get().getAltura());
-        assertEquals("100", capa.get().getIdIgdb());
+        assertEquals("co1234", capa.get().getIdIgdb()); // imageId, não record ID
 
         // Verificar screenshot
         Optional<ProdutoImagem> screenshot = produto.getImagensEstruturadas().stream()
@@ -188,7 +188,7 @@ class IgdbMapperServiceTest {
     void deveMapearVideosCorretamente() {
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, coverDTO, null, videos, null, null
+            gameDTO, coverDTO, null, null, videos, null, null
         );
 
         // Assert
@@ -214,7 +214,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, platforms, null
+            gameDTO, null, null, null, null, platforms, null
         );
 
         // Assert
@@ -232,7 +232,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, null, genres
+            gameDTO, null, null, null, null, null, genres
         );
 
         // Assert
@@ -252,31 +252,31 @@ class IgdbMapperServiceTest {
     @Test
     @DisplayName("Deve converter status IGDB corretamente")
     void deveConverterStatusIgdbCorretamente() {
-        // Test Released
+        // Test Released - produto INATIVO por padrão até admin revisar
         gameDTO.setStatus(0);
-        Produto produtoReleased = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null);
+        Produto produtoReleased = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null, null);
         assertEquals(StatusJogoEnum.RELEASED, produtoReleased.getStatus());
-        assertTrue(produtoReleased.getAtivo());
+        assertFalse(produtoReleased.getAtivo()); // Inativo até revisão do admin
 
         // Test Alpha
         gameDTO.setStatus(2);
-        Produto produtoAlpha = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null);
+        Produto produtoAlpha = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null, null);
         assertEquals(StatusJogoEnum.ALPHA, produtoAlpha.getStatus());
         assertFalse(produtoAlpha.getAtivo());
 
         // Test Beta
         gameDTO.setStatus(3);
-        Produto produtoBeta = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null);
+        Produto produtoBeta = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null, null);
         assertEquals(StatusJogoEnum.BETA, produtoBeta.getStatus());
 
         // Test Early Access
         gameDTO.setStatus(4);
-        Produto produtoEarlyAccess = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null);
+        Produto produtoEarlyAccess = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null, null);
         assertEquals(StatusJogoEnum.EARLY_ACCESS, produtoEarlyAccess.getStatus());
 
         // Test Cancelled
         gameDTO.setStatus(6);
-        Produto produtoCancelled = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null);
+        Produto produtoCancelled = mapperService.mapGameToProduct(gameDTO, null, null, null, null, null, null);
         assertEquals(StatusJogoEnum.CANCELLED, produtoCancelled.getStatus());
     }
 
@@ -291,7 +291,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, null, null
+            gameDTO, null, null, null, null, null, null
         );
 
         // Assert
@@ -307,16 +307,16 @@ class IgdbMapperServiceTest {
     @DisplayName("Deve truncar descrição quando excede limite")
     void deveTruncarDescricaoQuandoExcedeLimite() {
         // Arrange
-        String descricaoGrande = "A".repeat(600); // 600 caracteres (limite é 500)
+        String descricaoGrande = "A".repeat(2500); // 2500 caracteres (limite é 2000)
         gameDTO.setSummary(descricaoGrande);
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, null, null
+            gameDTO, null, null, null, null, null, null
         );
 
         // Assert
-        assertEquals(500, produto.getDescricao().length());
+        assertEquals(2000, produto.getDescricao().length());
         assertTrue(produto.getDescricao().endsWith("...")); // Truncado com reticências
     }
 
@@ -330,7 +330,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, null, null
+            gameDTO, null, null, null, null, null, null
         );
 
         // Assert - Por enquanto, links externos ficam vazios já que a API retorna apenas IDs
@@ -340,15 +340,15 @@ class IgdbMapperServiceTest {
     }
 
     @Test
-    @DisplayName("Deve configurar preço inicial como zero")
+    @DisplayName("Deve configurar preço inicial padrão")
     void deveConfigurarPrecoInicialComoZero() {
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, null, null
+            gameDTO, null, null, null, null, null, null
         );
 
-        // Assert
-        assertEquals(BigDecimal.ZERO, produto.getPreco());
+        // Assert - Preço padrão para jogos importados da IGDB
+        assertEquals(new BigDecimal("59.99"), produto.getPreco());
     }
 
     @Test
@@ -387,7 +387,7 @@ class IgdbMapperServiceTest {
 
         // Act
         Produto produto = mapperService.mapGameToProduct(
-            gameDTO, null, null, null, multiplePlatforms, null
+            gameDTO, null, null, null, null, multiplePlatforms, null
         );
 
         // Assert

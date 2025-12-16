@@ -82,6 +82,10 @@ public class IgdbImportService {
             ? apiClient.getScreenshotsByIds(gameDTO.getScreenshots()) 
             : List.of();
 
+        List<IgdbArtworkDTO> artworks = gameDTO.getArtworks() != null 
+            ? apiClient.getArtworksByIds(gameDTO.getArtworks()) 
+            : List.of();
+
         List<IgdbVideoDTO> videos = gameDTO.getVideos() != null 
             ? apiClient.getVideosByIds(gameDTO.getVideos()) 
             : List.of();
@@ -95,7 +99,7 @@ public class IgdbImportService {
             : List.of();
 
         // Mapeia para Produto
-        Produto produto = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, videos, platforms, genres);
+        Produto produto = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres);
 
         // Persiste categorias novas primeiro (se necessário)
         List<Categoria> novasCategorias = produto.getGeneros().stream()
@@ -224,6 +228,10 @@ public class IgdbImportService {
             ? apiClient.getScreenshotsByIds(gameDTO.getScreenshots()) 
             : List.of();
 
+        List<IgdbArtworkDTO> artworks = gameDTO.getArtworks() != null 
+            ? apiClient.getArtworksByIds(gameDTO.getArtworks()) 
+            : List.of();
+
         List<IgdbVideoDTO> videos = gameDTO.getVideos() != null 
             ? apiClient.getVideosByIds(gameDTO.getVideos()) 
             : List.of();
@@ -239,7 +247,7 @@ public class IgdbImportService {
         // Atualiza produto (preserva campos não gerenciados pela IGDB como preço)
         BigDecimal precoOriginal = produto.getPreco();
 
-        Produto produtoAtualizado = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, videos, platforms, genres);
+        Produto produtoAtualizado = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres);
         
         // Preserva ID e campos customizados
         produtoAtualizado.setId(produto.getId());

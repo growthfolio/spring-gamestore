@@ -43,7 +43,7 @@ public class IgdbApiClient {
      * @return Dados do jogo ou null se não encontrado
      */
     public IgdbGameDTO getGameById(Long gameId) {
-        String query = String.format("fields *, cover.*, platforms.*, genres.*; where id = %d;", gameId);
+        String query = String.format("fields *, cover.*, platforms.*, genres.*, artworks; where id = %d;", gameId);
         List<IgdbGameDTO> results = searchGames(query);
         return results.isEmpty() ? null : results.get(0);
     }
@@ -57,7 +57,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> searchGamesByName(String gameName, int limit, int offset) {
         String query = String.format(
-            "search \"%s\"; fields *, cover.*, platforms.*, genres.*; limit %d; offset %d;", 
+            "search \"%s\"; fields *, cover.*, platforms.*, genres.*, artworks; limit %d; offset %d;", 
             gameName.replace("\"", "\\\""), 
             Math.min(limit, 500),
             offset
@@ -73,7 +73,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> getPopularGames(int limit, int offset) {
         String query = String.format(
-            "fields *, cover.*, platforms.*, genres.*; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d; offset %d;",
+            "fields *, cover.*, platforms.*, genres.*, artworks; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d; offset %d;",
             Math.min(limit, 500),
             offset
         );
@@ -132,6 +132,24 @@ public class IgdbApiClient {
         
         String query = String.format("fields *; where id = (%s);", ids);
         return executeQuery("/game_videos", query, new ParameterizedTypeReference<List<IgdbVideoDTO>>() {});
+    }
+
+    /**
+     * Busca artworks (imagens promocionais) de jogo por IDs
+     * Artworks são diferentes de screenshots - são materiais promocionais oficiais
+     * @param artworkIds Lista de IDs de artworks
+     * @return Lista de artworks
+     */
+    public List<IgdbArtworkDTO> getArtworksByIds(List<Long> artworkIds) {
+        if (artworkIds == null || artworkIds.isEmpty()) return List.of();
+        
+        String ids = artworkIds.stream()
+            .map(String::valueOf)
+            .reduce((a, b) -> a + "," + b)
+            .orElse("");
+        
+        String query = String.format("fields *; where id = (%s);", ids);
+        return executeQuery("/artworks", query, new ParameterizedTypeReference<List<IgdbArtworkDTO>>() {});
     }
 
     /**

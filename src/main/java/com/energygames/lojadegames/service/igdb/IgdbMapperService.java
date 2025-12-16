@@ -42,6 +42,7 @@ public class IgdbMapperService {
      * @param gameDTO Dados do jogo da IGDB
      * @param coverDTO Capa do jogo (opcional)
      * @param screenshots Screenshots do jogo (opcional)
+     * @param artworks Artworks/imagens promocionais do jogo (opcional)
      * @param videos Vídeos do jogo (opcional)
      * @param platforms Plataformas do jogo (opcional)
      * @param genres Gêneros do jogo (opcional)
@@ -51,6 +52,7 @@ public class IgdbMapperService {
         IgdbGameDTO gameDTO,
         IgdbCoverDTO coverDTO,
         List<IgdbScreenshotDTO> screenshots,
+        List<IgdbArtworkDTO> artworks,
         List<IgdbVideoDTO> videos,
         List<IgdbPlatformDTO> platforms,
         List<IgdbGenreDTO> genres
@@ -104,8 +106,8 @@ public class IgdbMapperService {
         origem.setSincronizacaoAtiva(true);
         produto.setOrigemExterna(origem);
 
-        // Imagens estruturadas
-        mapImages(produto, coverDTO, screenshots);
+        // Imagens estruturadas (capa, screenshots, artworks)
+        mapImages(produto, coverDTO, screenshots, artworks);
 
         // Vídeos
         mapVideos(produto, videos);
@@ -124,9 +126,9 @@ public class IgdbMapperService {
     }
 
     /**
-     * Mapeia imagens (capa + screenshots) para ProdutoImagem
+     * Mapeia imagens (capa + screenshots + artworks) para ProdutoImagem
      */
-    private void mapImages(Produto produto, IgdbCoverDTO coverDTO, List<IgdbScreenshotDTO> screenshots) {
+    private void mapImages(Produto produto, IgdbCoverDTO coverDTO, List<IgdbScreenshotDTO> screenshots, List<IgdbArtworkDTO> artworks) {
         Set<ProdutoImagem> imagens = new HashSet<>();
         int ordem = 1;
 
@@ -163,6 +165,23 @@ public class IgdbMapperService {
                 imagens.add(img);
             }
             log.debug("{} screenshots adicionados", screenshots.size());
+        }
+
+        // Artworks (imagens promocionais oficiais)
+        if (artworks != null) {
+            for (IgdbArtworkDTO artwork : artworks) {
+                ProdutoImagem img = new ProdutoImagem();
+                img.setProduto(produto);
+                img.setUrl(artwork.buildImageUrl("screenshot_big")); // Artworks usam mesmo template de URL
+                img.setTipo(TipoImagemEnum.ARTWORK);
+                img.setImagemPrincipal(false);
+                img.setOrdem(ordem++);
+                img.setLargura(artwork.getWidth());
+                img.setAltura(artwork.getHeight());
+                img.setIdIgdb(artwork.getImageId());
+                imagens.add(img);
+            }
+            log.debug("{} artworks adicionados", artworks.size());
         }
 
         produto.setImagensEstruturadas(imagens);

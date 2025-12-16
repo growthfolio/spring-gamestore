@@ -46,6 +46,8 @@ public class IgdbGameDTO {
     
     private List<Long> screenshots; // IDs dos screenshots (precisa buscar em /screenshots)
     
+    private List<Long> artworks; // IDs das artworks/imagens promocionais (precisa buscar em /artworks)
+    
     private List<Long> videos; // IDs dos vídeos (precisa buscar em /game_videos)
     
     private List<IgdbPlatformDTO> platforms; // Objetos das plataformas (expandido)
@@ -175,6 +177,14 @@ public class IgdbGameDTO {
 
     public void setScreenshots(List<Long> screenshots) {
         this.screenshots = screenshots;
+    }
+
+    public List<Long> getArtworks() {
+        return artworks;
+    }
+
+    public void setArtworks(List<Long> artworks) {
+        this.artworks = artworks;
     }
 
     public List<Long> getVideos() {
