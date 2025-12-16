@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.energygames.lojadegames.dto.mapper.ProdutoMapper;
 import com.energygames.lojadegames.dto.request.ProdutoComercialUpdateDTO;
 import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
+import com.energygames.lojadegames.dto.response.ProdutoDetalheResponseDTO;
 import com.energygames.lojadegames.dto.response.ProdutoResponseDTO;
 import com.energygames.lojadegames.enums.OrigemEnum;
 import com.energygames.lojadegames.exception.BusinessException;
@@ -76,6 +77,24 @@ public class ProdutoServiceImpl implements ProdutoService {
 		Produto produto = produtoRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
 		return produtoMapper.toResponseDTO(produto);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ProdutoDetalheResponseDTO buscarDetalhePorId(Long id) {
+		log.info("Buscando detalhe do produto com ID: {}", id);
+		Produto produto = produtoRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
+		return produtoMapper.toDetalheResponseDTO(produto);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ProdutoDetalheResponseDTO buscarDetalhePorSlug(String slug) {
+		log.info("Buscando detalhe do produto com slug: {}", slug);
+		Produto produto = produtoRepository.findBySlug(slug)
+				.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com slug: " + slug));
+		return produtoMapper.toDetalheResponseDTO(produto);
 	}
 
 

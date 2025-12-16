@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.energygames.lojadegames.dto.request.ProdutoComercialUpdateDTO;
 import com.energygames.lojadegames.dto.request.ProdutoRequestDTO;
+import com.energygames.lojadegames.dto.response.ProdutoDetalheResponseDTO;
 import com.energygames.lojadegames.dto.response.ProdutoResponseDTO;
 import com.energygames.lojadegames.service.ProdutoService;
 
@@ -60,6 +61,20 @@ public class ProdutoController {
 	@GetMapping("/{id}")
 	public ResponseEntity<ProdutoResponseDTO> getById(@PathVariable Long id) {
 		return ResponseEntity.ok(produtoService.buscarPorId(id));
+	}
+
+	@Operation(summary = "Buscar produto com mídia estruturada", 
+		description = "Retorna detalhes do produto com imagens e vídeos em múltiplos tamanhos")
+	@GetMapping("/{id}/detalhe")
+	public ResponseEntity<ProdutoDetalheResponseDTO> getDetalheById(@PathVariable Long id) {
+		return ResponseEntity.ok(produtoService.buscarDetalhePorId(id));
+	}
+
+	@Operation(summary = "Buscar produto por slug", 
+		description = "Retorna detalhes do produto pelo slug (URL amigável)")
+	@GetMapping("/slug/{slug}")
+	public ResponseEntity<ProdutoDetalheResponseDTO> getBySlug(@PathVariable String slug) {
+		return ResponseEntity.ok(produtoService.buscarDetalhePorSlug(slug));
 	}
 
 	@GetMapping("/buscar")
