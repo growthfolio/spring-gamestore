@@ -60,7 +60,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         Pedido pedido = new Pedido();
         pedido.setUsuario(usuario);
-        pedido.setStatus(StatusPedidoEnum.CRIADO);
+        pedido.setStatus(StatusPedidoEnum.PENDENTE_PAGAMENTO);
         
         List<ItemPedido> itensPedido = new ArrayList<>();
         BigDecimal valorTotal = BigDecimal.ZERO;
@@ -68,7 +68,8 @@ public class PedidoServiceImpl implements PedidoService {
         for (CarrinhoItem itemCarrinho : itensCarrinho) {
             Produto produto = itemCarrinho.getProduto();
 
-            // Validações
+            // Validações - apenas verifica, NÃO baixa estoque ainda
+            // O estoque será baixado apenas após confirmação do pagamento via webhook
             if (!produto.getAtivo()) {
                 throw new BusinessException("Produto indisponível: " + produto.getNome());
             }
@@ -76,10 +77,6 @@ public class PedidoServiceImpl implements PedidoService {
             if (produto.getEstoque() < itemCarrinho.getQuantidade()) {
                 throw new BusinessException("Estoque insuficiente para o produto: " + produto.getNome());
             }
-
-            // Baixar estoque
-            produto.setEstoque(produto.getEstoque() - itemCarrinho.getQuantidade());
-            produtoRepository.save(produto);
 
             // Criar ItemPedido
             ItemPedido itemPedido = new ItemPedido();
@@ -104,7 +101,7 @@ public class PedidoServiceImpl implements PedidoService {
         // Limpar carrinho
         carrinhoRepository.deleteAllByUsuarioId(usuario.getId());
 
-        log.info("Pedido criado com sucesso. ID: {}", pedidoSalvo.getId());
+        log.info("Pedido criado com sucesso. ID: {} - Status: PENDENTE_PAGAMENTO", pedidoSalvo.getId());
 
         return toResponseDTO(pedidoSalvo);
     }

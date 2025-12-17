@@ -2,6 +2,7 @@ package com.energygames.lojadegames.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,8 @@ import com.energygames.lojadegames.model.Usuario;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByUsuario(Usuario usuario);
+    
+    Optional<Pedido> findByStripeSessionId(String stripeSessionId);
     
     List<Pedido> findByUsuarioIdOrderByDataCriacaoDesc(Long usuarioId, Pageable pageable);
     

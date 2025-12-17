@@ -89,6 +89,9 @@ public class BasicSecurityConfig {
                         .requestMatchers("/usuarios/logar").permitAll()
                         .requestMatchers("/usuarios/cadastrar").permitAll()
                         
+                        // Endpoints públicos - Stripe Webhook (usa validação própria via Stripe-Signature)
+                        .requestMatchers("/api/billing/webhook").permitAll()
+                        
                         // Endpoints públicos - Documentação e Erros
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()

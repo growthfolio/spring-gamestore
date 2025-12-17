@@ -51,6 +51,9 @@ public class Pedido {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
+    @Column(name = "stripe_session_id")
+    private String stripeSessionId;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("pedido")
     private List<ItemPedido> itens = new ArrayList<>();
@@ -60,7 +63,7 @@ public class Pedido {
         this.dataCriacao = LocalDateTime.now();
         this.dataAtualizacao = LocalDateTime.now();
         if (this.status == null) {
-            this.status = StatusPedidoEnum.CRIADO;
+            this.status = StatusPedidoEnum.PENDENTE_PAGAMENTO;
         }
     }
 
@@ -113,6 +116,14 @@ public class Pedido {
 
     public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
         this.dataAtualizacao = dataAtualizacao;
+    }
+
+    public String getStripeSessionId() {
+        return stripeSessionId;
+    }
+
+    public void setStripeSessionId(String stripeSessionId) {
+        this.stripeSessionId = stripeSessionId;
     }
 
     public List<ItemPedido> getItens() {
