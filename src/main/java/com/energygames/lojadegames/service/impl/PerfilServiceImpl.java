@@ -158,7 +158,7 @@ public class PerfilServiceImpl implements PerfilService {
                 dto.setValor(pedido.getValorTotal());
                 
                 if (item.getProduto().getImagens() != null && !item.getProduto().getImagens().isEmpty()) {
-                    dto.setProdutoImagem(item.getProduto().getImagens().get(0).getUrl());
+                    dto.setProdutoImagem(item.getProduto().getImagens().get(0));
                 }
                 compras.add(dto);
             }
