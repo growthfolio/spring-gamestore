@@ -43,7 +43,11 @@ public class IgdbApiClient {
      * @return Dados do jogo ou null se não encontrado
      */
     public IgdbGameDTO getGameById(Long gameId) {
-        String query = String.format("fields *, cover.*, platforms.*, genres.*, artworks; where id = %d;", gameId);
+        String query = String.format(
+            "fields *, cover.*, platforms.*, genres.*, artworks, involved_companies.company.name, involved_companies.developer, involved_companies.publisher; " +
+            "where id = %d;", 
+            gameId
+        );
         List<IgdbGameDTO> results = searchGames(query);
         return results.isEmpty() ? null : results.get(0);
     }
@@ -57,7 +61,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> searchGamesByName(String gameName, int limit, int offset) {
         String query = String.format(
-            "search \"%s\"; fields *, cover.*, platforms.*, genres.*, artworks; limit %d; offset %d;", 
+            "search \"%s\"; fields *, cover.*, platforms.*, genres.*, artworks, involved_companies; limit %d; offset %d;", 
             gameName.replace("\"", "\\\""), 
             Math.min(limit, 500),
             offset
@@ -73,7 +77,7 @@ public class IgdbApiClient {
      */
     public List<IgdbGameDTO> getPopularGames(int limit, int offset) {
         String query = String.format(
-            "fields *, cover.*, platforms.*, genres.*, artworks; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d; offset %d;",
+            "fields *, cover.*, platforms.*, genres.*, artworks, involved_companies; where rating > 75 & rating_count > 50; sort rating_count desc; limit %d; offset %d;",
             Math.min(limit, 500),
             offset
         );
@@ -248,5 +252,31 @@ public class IgdbApiClient {
             log.warn("API IGDB não disponível: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Busca involved companies por IDs
+     * @param companyIds Lista de IDs das involved companies
+     * @return Lista de involved companies com dados das empresas
+     */
+    public List<IgdbInvolvedCompanyDTO> getInvolvedCompaniesByIds(List<Long> companyIds) {
+        if (companyIds == null || companyIds.isEmpty()) {
+            return List.of();
+        }
+
+        String ids = companyIds.stream()
+            .map(String::valueOf)
+            .reduce((a, b) -> a + "," + b)
+            .orElse("");
+
+        String query = String.format(
+            "fields company.name, company.slug, developer, publisher, porting, supporting; " +
+            "where id = (%s); " +
+            "limit %d;",
+            ids, companyIds.size()
+        );
+
+        return executeQuery("/involved_companies", query, 
+            new ParameterizedTypeReference<List<IgdbInvolvedCompanyDTO>>() {});
     }
 }

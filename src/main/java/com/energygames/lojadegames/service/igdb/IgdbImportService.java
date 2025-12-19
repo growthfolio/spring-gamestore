@@ -98,8 +98,13 @@ public class IgdbImportService {
             ? gameDTO.getGenres()
             : List.of();
 
+        // Busca empresas (desenvolvedor/publisher) se disponível
+        List<IgdbInvolvedCompanyDTO> companies = gameDTO.getInvolvedCompanies() != null 
+            ? apiClient.getInvolvedCompaniesByIds(gameDTO.getInvolvedCompanies())
+            : List.of();
+
         // Mapeia para Produto
-        Produto produto = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres);
+        Produto produto = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres, companies);
 
         // Persiste categorias novas primeiro (se necessário)
         List<Categoria> novasCategorias = produto.getGeneros().stream()
@@ -244,10 +249,15 @@ public class IgdbImportService {
             ? gameDTO.getGenres()
             : List.of();
 
+        // Busca empresas (desenvolvedor/publisher) se disponível
+        List<IgdbInvolvedCompanyDTO> companies = gameDTO.getInvolvedCompanies() != null 
+            ? apiClient.getInvolvedCompaniesByIds(gameDTO.getInvolvedCompanies())
+            : List.of();
+
         // Atualiza produto (preserva campos não gerenciados pela IGDB como preço)
         BigDecimal precoOriginal = produto.getPreco();
 
-        Produto produtoAtualizado = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres);
+        Produto produtoAtualizado = mapper.mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres, companies);
         
         // Preserva ID e campos customizados
         produtoAtualizado.setId(produto.getId());

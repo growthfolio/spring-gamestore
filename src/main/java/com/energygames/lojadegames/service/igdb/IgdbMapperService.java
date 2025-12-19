@@ -46,6 +46,7 @@ public class IgdbMapperService {
      * @param videos Vídeos do jogo (opcional)
      * @param platforms Plataformas do jogo (opcional)
      * @param genres Gêneros do jogo (opcional)
+     * @param companies Empresas envolvidas (opcional)
      * @return Produto mapeado (ainda não persistido)
      */
     public Produto mapGameToProduct(
@@ -55,7 +56,8 @@ public class IgdbMapperService {
         List<IgdbArtworkDTO> artworks,
         List<IgdbVideoDTO> videos,
         List<IgdbPlatformDTO> platforms,
-        List<IgdbGenreDTO> genres
+        List<IgdbGenreDTO> genres,
+        List<IgdbInvolvedCompanyDTO> companies
     ) {
         log.debug("Mapeando jogo IGDB ID {} para Produto", gameDTO.getId());
 
@@ -89,10 +91,20 @@ public class IgdbMapperService {
         produto.setEstoque(0); // Estoque zerado até admin ajustar
         produto.setDesconto(BigDecimal.ZERO);
         
-        // Campos obrigatórios genéricos (serão atualizados pelo admin se necessário)
-        produto.setPlataforma("Multiplataforma");
-        produto.setDesenvolvedor("A definir");
-        produto.setPublisher("A definir");
+        // Plataforma: usar nomes reais das plataformas
+        if (platforms != null && !platforms.isEmpty()) {
+            String plataformasStr = platforms.stream()
+                .map(IgdbPlatformDTO::getName)
+                .limit(3) // Limitar a 3 plataformas principais
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Multiplataforma");
+            produto.setPlataforma(plataformasStr);
+        } else {
+            produto.setPlataforma("Multiplataforma");
+        }
+        
+        // Desenvolvedor e Publisher: buscar das empresas envolvidas
+        mapCompanies(produto, companies);
         
         // Produto inicialmente INATIVO até admin revisar preço/estoque
         produto.setAtivo(false);
@@ -123,6 +135,21 @@ public class IgdbMapperService {
 
         log.info("Produto '{}' mapeado com sucesso a partir da IGDB", produto.getNome());
         return produto;
+    }
+
+    /**
+     * Método de compatibilidade para chamadas sem empresas
+     */
+    public Produto mapGameToProduct(
+        IgdbGameDTO gameDTO,
+        IgdbCoverDTO coverDTO,
+        List<IgdbScreenshotDTO> screenshots,
+        List<IgdbArtworkDTO> artworks,
+        List<IgdbVideoDTO> videos,
+        List<IgdbPlatformDTO> platforms,
+        List<IgdbGenreDTO> genres
+    ) {
+        return mapGameToProduct(gameDTO, coverDTO, screenshots, artworks, videos, platforms, genres, List.of());
     }
 
     /**
@@ -341,6 +368,49 @@ public class IgdbMapperService {
             case 16 -> "Discord";
             default -> "Link-" + category;
         };
+    }
+
+    /**
+     * Mapeia empresas envolvidas para desenvolvedor e publisher
+     */
+    private void mapCompanies(Produto produto, List<IgdbInvolvedCompanyDTO> companies) {
+        if (companies == null || companies.isEmpty()) {
+            produto.setDesenvolvedor("A definir");
+            produto.setPublisher("A definir");
+            return;
+        }
+
+        String desenvolvedor = null;
+        String publisher = null;
+
+        for (IgdbInvolvedCompanyDTO company : companies) {
+            if (company.getCompany() == null || company.getCompany().getName() == null) {
+                continue;
+            }
+
+            String companyName = company.getCompany().getName();
+
+            // Buscar desenvolvedor
+            if (desenvolvedor == null && Boolean.TRUE.equals(company.getDeveloper())) {
+                desenvolvedor = companyName;
+            }
+
+            // Buscar publisher
+            if (publisher == null && Boolean.TRUE.equals(company.getPublisher())) {
+                publisher = companyName;
+            }
+
+            // Se já encontrou ambos, pode parar
+            if (desenvolvedor != null && publisher != null) {
+                break;
+            }
+        }
+
+        produto.setDesenvolvedor(desenvolvedor != null ? desenvolvedor : "A definir");
+        produto.setPublisher(publisher != null ? publisher : "A definir");
+
+        log.debug("Empresas mapeadas - Desenvolvedor: {}, Publisher: {}", 
+            produto.getDesenvolvedor(), produto.getPublisher());
     }
 
     /**
