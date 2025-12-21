@@ -65,6 +65,9 @@ public class BasicSecurityConfig {
         configuration.addAllowedOrigin("http://localhost:80");
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("http://165.22.129.209");
+        configuration.addAllowedOrigin("http://165.22.129.209:80");
+        configuration.addAllowedOriginPattern("*"); // Permite qualquer origem (para desenvolvimento)
         configuration.addAllowedMethod("*"); // Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Permite todos os cabeçalhos
         configuration.setAllowCredentials(true); // Permite envio de cookies e credenciais
@@ -99,22 +102,33 @@ public class BasicSecurityConfig {
                         
                         // Produtos, Categorias e Banners - GET público, modificações só ADMIN
                         .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/produtos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/produtos/pre-registro").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/banners/ativos").permitAll()
                         .requestMatchers(HttpMethod.POST, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").hasRole("ADMIN")
                         .requestMatchers("/api/banners/**").hasRole("ADMIN")
                         
                         // Endpoints de ADMIN
                         .requestMatchers("/igdb/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/usuarios/all").hasRole("ADMIN")
                         
                         // Endpoints que requerem autenticação (qualquer usuário logado)
                         .requestMatchers("/carrinho/**", "/favoritos/**", "/avaliacoes/**").authenticated()
+                        .requestMatchers("/api/carrinho/**", "/api/favoritos/**", "/api/avaliacoes/**").authenticated()
                         .requestMatchers("/usuarios/atualizar/**", "/usuarios/{id}").authenticated()
                         
                         // CORS preflight

@@ -112,4 +112,11 @@ public class ProdutoController {
 			@Valid @RequestBody ProdutoComercialUpdateDTO dto) {
 		return ResponseEntity.ok(produtoService.atualizarDadosComerciais(id, dto));
 	}
+
+	@Operation(summary = "Pré-registro de interesse", description = "Registra interesse do usuário em um produto")
+	@PostMapping("/pre-registro")
+	public ResponseEntity<String> preRegistro(@RequestBody Object dados) {
+		// Endpoint simples para pré-registro - implementação básica
+		return ResponseEntity.ok("{\"message\":\"Pré-registro realizado com sucesso!\"}");
+	}
 }

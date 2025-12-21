@@ -32,6 +32,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String requestPath = request.getRequestURI();
+        
+        // Pular filtro JWT para endpoints públicos
+        if (requestPath.equals("/produtos/pre-registro") || 
+            requestPath.equals("/usuarios/logar") || 
+            requestPath.equals("/usuarios/cadastrar") ||
+            requestPath.startsWith("/swagger-ui") ||
+            requestPath.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
@@ -50,7 +62,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-            
             }
             filterChain.doFilter(request, response);
 

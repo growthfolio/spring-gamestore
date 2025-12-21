@@ -2,6 +2,7 @@ package com.energygames.lojadegames.dto.igdb;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -44,10 +45,16 @@ public class IgdbGameDTO {
 
     private IgdbCoverDTO cover; // Objeto da capa (expandido)
     
+    @JsonProperty("screenshots")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> screenshots; // IDs dos screenshots (precisa buscar em /screenshots)
     
+    @JsonProperty("artworks")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> artworks; // IDs das artworks/imagens promocionais (precisa buscar em /artworks)
     
+    @JsonProperty("videos")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> videos; // IDs dos vídeos (precisa buscar em /game_videos)
     
     private List<IgdbPlatformDTO> platforms; // Objetos das plataformas (expandido)
@@ -55,14 +62,17 @@ public class IgdbGameDTO {
     private List<IgdbGenreDTO> genres; // Objetos dos gêneros (expandido)
     
     @JsonProperty("involved_companies")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> involvedCompanies; // IDs das empresas
 
     private Integer status; // Status: 0=Released, 2=Alpha, 3=Beta, 4=Early Access, 5=Offline, 6=Cancelled, 7=Rumored, 8=Delisted
 
     @JsonProperty("external_games")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> externalGames; // IDs dos links externos (Steam, Epic, etc)
 
     @JsonProperty("websites")
+    @JsonDeserialize(using = FlexibleLongListDeserializer.class)
     private List<Long> websites; // IDs dos sites oficiais
 
     // Getters e Setters
